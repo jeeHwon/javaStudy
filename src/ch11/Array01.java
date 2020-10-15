@@ -20,5 +20,12 @@ public class Array01 {
 			System.out.println(str[i]);
 		}
 		
+		//데이터 꺼내기 - 향상된 for문 이용
+		//for(타입 변수 : 배열명 또는 컬랙션명
+		for (String temp : str) {
+			System.out.println(temp);
+		}
+		
+		
 	}
 }
