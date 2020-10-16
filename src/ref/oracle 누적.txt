@@ -1,0 +1,4153 @@
+﻿<Oracle> - 200914
+
+#환경구성
+www.oracle.com
+oracle 11g-엔터프라이즈,스탠다드,익스프레스
+Oracle Database 11g Release 2 Express Edition for Windows 64
+--설치확인
+시작-제어판-시스템및보안-관리도구-서비스
+--실행
+윈도우+R-cmd-sqlplus system/1q2w3e4r!
+sqlplus 사용자/암호
+
+
+#1 테이블스페이스 생성
+create tablespace 테이블스페이스명
+ 	datafile ‘파일명’ size 크기;
+create tablespace summer
+	datafile ‘D:\study\db\summer.dbf’ size 10m;
+
+#2 사용자 생성
+create user 사용자명
+	identified by 암호
+	[default tablespace 테이블스페이스명];
+create user happy
+	identified by day
+	default tablespace summer;
+
+#3 권한부여
+grant 권한1, [권한2 …] to 사용자명;
+grant connect, resource to happy;
+
+#4 사용자접속
+conn[ect] 사용자명 / 암호
+conn happy/day
+
+--현재 사용자 확인
+show user
+
+--현재 데이터베이스의 모든사용자 확인(system에게 권한있음)
+select username from dba_users;
+
+--테이블스페이스 목록 확인
+select tablespace_name,file_name,bytes from dba_data_files;
+
+--scott 사용자 생성(scott.sql)
+create user scott
+	identified by TIGER;
+
+--sql 파일 실행
+@경로/파일명
+@C:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin/scott.sql
+
+--현재 사용자의 테이블 확인
+select * from tab;
+select * from emp;
+set linesize 200
+set pagesize 30
+
+--환경설정 바꾸기(glogin.sql) c:오라클폴더내에서 파일찾아서 맨 밑에 추가하기
+set linesize 200
+set pagesize 30
+
+--사용자 암호변경(관리자 권한)
+conn system/1q2w3e4r!
+alter user scott
+	identified by tiger;
+	
+--관계형 데이터베이스(rdbms->객체형 db ->객체관계형 데이터베이스)
+
+--data 파일 실행하기
+@D:\study\oracle\data.txt
+select * from tab;
+
+--데이터의 조회
+select [distinct] {*|컬럼명1, 컬럼명2,..} from 테이블명
+	[where 조건]
+	[group by 그룹절]
+	[having 그룹절의 조건]
+	[order by 정렬];
+	
+--sawon 테이블의 모든 내용출력
+select * from sawon;
+
+--sawon 테이블의 이름, 입사일, 급여만 출력
+select saname, sahire, sapay from sawon;
+
+--sawon 테이블의 구조확인
+desc[ribe] 테이블명
+desc sawon
+
+--personnel 테이블에서 페이와 보너스 합계(빈칸 보너스 인식못해)
+select pay, bonus, pay+bonus from personnel;
+
+--nvl(포현식, 값) : 없는 값을 표현해줘
+select pno, pname, job, pay, nvl(bonus, -99) from personnel;
+
+--화면지우기
+cl scr
+
+--프로그램 종료
+quit
+
+<Oracle> - 200915
+
+--personnel 구조확인
+desc 테이블명
+desc personnel
+select * from personnel;
+
+--personnel 테이블에서 사번, 이름, 직책, 급여, 보너스, 합계
+select pno, pname, job, pay, bonus, pay+bonus from personnel;
+#보너스 값이 null인 경우 연산이 안돼.. 합계가 안나와
+
+--nvl(표현식, 값)
+select pno, pname, job, pay, nvl(bonus, 0) from personnel;
+select pno, pname, job, pay, bonus, pay+nvl(bonus, 0) from personnel;
+
+--컬럼명에 alias(별칭) : 컬럼명은 기본 대문자, 소문자나 띄어쓰기는 ""쓰기
+select pno 사번, pname "name", job "Job", pay "급  여", bonus 보너스, pay+nvl(bonus, 0) 토탈 from personnel;
+
+--personnel tab에서 직책 출력
+select job from personnel; #모든 직책이 나온다
+select distinct job from personnel; #중복 제거 후 나온다
+
+--personnel tab에서 이름, 직책, 급여 출력(단, 급여 3000이상)
+select pname, job, pay from personnel where pay>=3000
+
+--personnel tab에서 이름, 직책, 급여 출력(단, 직책이 매니져)
+select pname, job, pay from personnel 
+	where job='MANAGER';
+(명령어는 상관 없지만 저장된 데이터는 대소문자 구분한다. MANAGER로 저장되어
+있으면 MANAGER로, if manager로 검색하면 못찾음 )
+
+--personnel tab에서 이름, 직책, 급여 출력(단, 직책이 매니져 or 세일즈맨)
+select pname, job, pay from personnel 
+	where job='MANAGER' or job='SALESMAN';
+select pname, job, pay from personnel 
+	where job in ('MANAGER', 'SALESMAN');
+	
+--personnel tab에서 이름, 직책, 급여 출력(단, 급여가 1000이상 2000이하)	
+select pname, job, pay from personnel 
+	where pay>=1000 and pay<=2000;
+select pname, job, pay from personnel 
+	where pay between 1000 and 2000;
+
+--personnel tab에서 이름, 직책, 급여 출력(단, 직책이 세일즈맨 아님)
+select pname, job, pay from personnel 
+	where job!='SALESMAN';	
+select pname, job, pay from personnel 
+	where job<>'SALESMAN';	
+	
+--personnel tab에서 이름, 급여, 보너스 출력(단, 보너스를 받는 사람)	
+select pname, pay, bonus from personnel 
+	where bonus>0;
+	
+--personnel tab에서 이름, 급여, 보너스 출력(단, 보너스를 안받는 사람)	
+select pname, pay, bonus from personnel 
+	where bonus=0; (안돼 null이 있잖아)
+select pname, pay, bonus from personnel 
+	where bonus=null; (안돼 null은 값자체가 없기 때문에 비교 불가)
+select pname, pay, bonus from personnel 
+	where bonus is null; (보너스 null 인 사람)
+select pname, pay, bonus from personnel 
+	where bonus is not null; (보너스 null 아닌사람)
+따라서,
+select pname, pay, bonus from personnel 
+	where bonus=0 or bonus is null;
+	
+--컬럼 길이 조절
+select pname, pay, bonus from personnel;
+col job format a10
+col pname format a10
+select pname, pay, bonus from personnel;
+	
+--연결 연산자(||)
+select pname, job, pay from personnel;
+select pname||job||pay from personnel;
+select pname||'의 직책은 '||job||'이고 급여는 '||pay||'원이다.' from personnel;
+
+--% : 여러 문자열, _: 문자하나
+--이름, 직책, 급여 출력 (단, 이름이 5글자)
+select pname, job, pay from personnel
+	where pname like '_____';
+	
+--이름, 직책, 급여 출력 (단, 이름 두번째 글자가 A)
+select pname, job, pay from personnel
+	where pname like '_A%';
+	
+--이름, 직책, 급여 출력 (단, 이름이 J로 시작)
+select pname, job, pay from personnel
+	where pname like 'J%';
+	
+--data 파일 지우고 다시 실행하고 싶을때(다만 휴지통에 지운파일남아)
+@d:\study\oracle\data.txt
+
+--휴지통 비우기
+purge recyclebin;
+
+--합집합, 교집합, 차집합
+desc dept
+create table d1
+	as 
+	select * from dept;
+create table d2
+	as 
+	select * from dept where deptno>20;
+select * from d1;
+select * from d2;
+insert into d2 values (99, '기획부' , '서산');
+insert into d2 values (88, '이벤트' , '제주도');
+
+--합집합(중복X / 중복O)
+select * from d1
+	union
+	select * from d2;
+select * from d1
+	union all
+	select * from d2;
+	
+--교집합
+select * from d1
+	intersect
+	select * from d2;
+
+--차집합
+select * from d1
+	minus
+	select * from d2;
+	
+--정렬
+select * from personnel
+	order by pay;
+select * from personnel
+	order by pay desc;
+select * from personnel
+	order by job asc;
+select * from personnel
+	order by job asc, pay desc;
+	
+==실습==
+--사용자는 scott으로 함,테이블은 emp
+select * from emp;
+
+--1.부서번호가 10번인 부서의 사람중 사원번호, 이름, 월급출력
+select empno, ename, sal from emp
+	where deptno =10;
+	
+--2.사원번호가 7369인 사람중 이름,입사일, 부서번호를출력
+select ename, hiredate, deptno from emp
+	where empno =7369;
+	
+--3.이름이 ALLEN인 사람의 모든 정보출력
+select * from emp
+	where ename ='ALLEN'; 
+
+--4.입사일이 83/01/12인 사원의 이름,부서번호,월급출력
+select ename, deptno, sal from emp
+	where hiredate = '83/01/12';
+
+--5.직업이 MANAGER가 아닌사람의 모든정보 출력
+select * from emp
+	where job!= 'MANAGER';
+
+--6.입사일이 81/04/02 이후에 입사한 사원의 정보출력
+select * from emp
+	where hiredate > '81/04/02';
+
+--7.급여가 800 이상인 사람의 이름, 급여,부서번호 출력
+select ename, sal, deptno from emp	
+	where sal >= 800;
+
+--8.부서번호가 20번 이상인 사원의 모든 정보 출력
+select * from emp	
+	where deptno >=20;
+
+--9.입사일이 81/02/09 보다 먼저 입사한 사람들의 모든 정보 출력
+select * from emp
+	where hiredate < '81/02/09';
+	
+--10.입사번호가 7698보다 작거나 같은사람들의 입사번호와 이름 출력
+select empno, ename from emp
+	where empno <= 7698;
+
+==숫자함수
+conn happy/day
+select 10/7 from sawon;
+select 10/7 from dept; -> 각 테이블 건수만큼 나온다
+select 10/7 from dual; -> 한번만 계산하게 해주는 테이블
+--올림, 버림
+select 10/7, ceil(10/7), floor(10/7) from dual;
+--소수점 올림, 버림
+select 10/7, round(10/7,3), trunc(10/7,3) from dual;
+--사원테이블에서 이름, 급여, 월급, 세금출력
+	(월급 = 급여/12, 단 50원 이상 반올림하여 백단위로 표현, 
+	세금은 급여의 3%로 원단위 절삭)
+select saname, sapay, 
+	round(sapay/12, -2) 월급, 
+	trunc(sapay*0.03, -1) 세금
+	from sawon;
+--나머지, 절대값, 지수
+select mod(10,3), abs(-777), power(2,3) from dual;
+
+==문자함수
+--소문자,첫문자만대문자, 대문자
+select pname, lower(pname), initcap(pname), upper(pname) from personnel;
+--붙여서이어쓰기 (||는 갯수도 제한 없고 숫자도 붙일수 있다)
+select concat(pname, job), pname||job from personnel;
+--길이값, 바이트값, 특정문자 추출
+select length('happy'),length('경영기술개발원') from dual;
+select lengthb('happy'),lengthb('경영기술개발원') from dual;
+select 'abcde', substr('abcde',4), substr('abcde', 2, 3) from dual;
+--빈칸 특정 문자로 채우기
+select 'ringdingdong', lpad('ringdingdong', 15, '*') from dual;
+select 'ringdingdong', rpad('ringdingdong', 15, '@') from dual;
+
+--decode(표현식, 조건1, 값1, 조건2, 값2, 조건3, 값3..)
+select pname, job, pay from personnel;
+--MANAGER이면 급여의 10%를 incentive,
+	SALESMAN이면 15%, 
+	PRESIDENT이면 20%
+select pay, job, pay, 
+	decode(job, 
+	'MANAGER', pay*0.1, 
+	'SALESMAN', pay*0.15, 
+	'PRESIDENT', pay*0.2) 
+	incentive from personnel;
+	
+--사원테이블에서 이름, 부서번호, 부서명 출력
+	(단, 부서번호가 10이면 총무부
+	20이면 영업부, 30이면 전산부, 40이면 관리부)
+select saname,deptno,
+	decode(deptno,
+	10, '총무부',
+	20, '영업부',
+	30, '전산부',
+	40, '관리부')
+	부서명 from sawon;
+
+--고객테이블에서 고객명, 주민번호, 성별출력
+select goname, gojumin, decode(
+	substr(gojumin, 8, 1),
+	1, '남',
+	2, '여')
+	성별 from gogek;
+	
+==날짜함수
+select sysdate from dual;
+--날짜-날짜 = 숫자
+select pname, startdate from personnel;
+select pname, startdate-sysdate from personnel;
+--날짜+숫자 = 날짜
+select sysdate+3 from dual;
+
+--시간 변경하기
+alter session 
+	set nls_date_format='yyyy-mm-dd hh:mi:ss';
+	alter session 
+	set nls_date_format='yyyy-mm-dd hh:mi:ss am';
+	alter session 
+	set nls_date_format='yyyy-mm-dd hh24:mi:ss';
+	alter session
+	set nls_date_format='yyyy-mm-dd hh:mi:ss am bc';
+--날짜+숫자/24
+
+
+== 실습 2 스콧사용자로 emp 테이블
+
+
+--12.입사일이 81/04/02보다 늦고 82/12/09보다 빠른 사원의 이름,월급,부서번호 출력
+select ename, sal, deptno from emp
+	where hiredate > '81/04/02' and hiredate < '82/12/09';
+
+--13.급여가 1600보다 크고 3000보다 작은 사람의 이름,직업, 급여 출력
+select ename, job, sal from emp
+	where sal > 1600 and sal < 3000;
+
+--14.사원번호가 7654와 7782사이 이외의 사원의모든 정보출력
+select * from emp
+	where empno < 7654 or empno > 7782;
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+--16.입사일이 81년 이외에 입사한 사람의 모든 정보 출력
+select * from emp
+	where substr(hiredate, 1, 2) <> 81;
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+--17.직업이 MANAGER와 SALESMAN인 사람의 모든 정보 출력
+select * from emp
+	where job = 'MANAGER' or job = 'SALESMAN';
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+--18.부서번호가 20,30번을 제외한 모든 사람의 이름, 사원번호, 부서번호 출력
+select * from emp
+	where deptno <> 20 and deptno <> 30;
+
+--19.이름이 S로 시작하는사원의 사원번호, 이름, 입사일, 부서번호 출력
+select * from emp
+	where ename like 'S%';
+
+--20.입사일이 81년도인 사람의 모든 정보 출력
+select * from emp
+	where substr(hiredate, 1, 2) = 81;
+
+--21.이름중 S자가들어가 있는 사람만 모든정보 출력
+select * from emp
+	where ename like '%S%';
+
+--22.이름이 S로시작하고 마지막 글자가 T인 사람의 모든 정보 출력(단 이름은 전체 5자리)
+select * from emp
+	where ename like 'S___T';
+
+--23.첫번째 문자는관계없고 두번째 문자가 A인사람의 정보출력
+select * from emp
+	where ename like '_A%';
+
+--24.커미션이 NULL인사람의 정보를출력
+select * from emp
+	where comm is null;
+
+--25.커미션이 NULL이아닌 사람의 모든 정보 출력
+select * from emp
+	where comm is not null;
+
+--26.부서가 30번부서이고 급여가1500이상인 사람의 이름, 부서,월급출력
+select * from emp
+	where deptno = 30 and sal >= 1500;
+
+--27.이름의 첫글자가 K로 시작하거나 부서번호가 30번인사람의 사원번호, 이름, 부서번호 출력
+select * from emp
+	where ename like 'K%' or deptno = 30;
+
+--28.급여가 1500이상이고 부서번호가 30번인 사원중 직업이 MANAGER인 사람의 정보출력
+select * from emp
+	where sal >=1500 and deptno = 30 and job = 'MANAGER';
+
+--29.부서번호가 30번인 사람중 사원번호 정렬하라
+select * from emp
+	where deptno = 30 order by empno;
+
+--30.급여가 많은 순 정렬
+select * from emp
+	order by sal desc;
+
+--31.부서번호로 오름차순 정렬후 급여많은순 출력
+select * from emp
+	order by deptno , sal desc;
+
+--32.부선번호로 내림차순정렬하고 이름순 오름차순, 급여순 내림차순
+select * from emp
+	order by deptno desc , ename, sal desc;
+
+@@@@@@@답지@@@@@@@@@@@답지@@@@@@@@@@답지@@@@@@@@@@@답지
+--12.입사일이 81/04/02보다 늦고 82/12/09보다 빠른 사원의 이름,월급,부서번호 출력
+
+select ename, sal, deptno from emp where hiredate > '81/04/02' and hiredate < '82/12/09';
+
+--13.급여가 1600보다 크고 3000보다 작은 사람의 이름,직업, 급여 출력
+
+select ename, job, sal from emp where sal > 1600 and sal < 3000;
+
+--14.사원번호가 7654와 7782사이 이외의 사원의모든 정보출력
+
+select * from emp where empno!=7654 and empno != 7782;
+
+--16.입사일이 81년 이외에 입사한 사람의 모든 정보 출력
+
+select * from emp where hiredate < '81/01/01' or hiredate > '81/12/31';
+
+--17.직업이 MANAGER와 SALESMAN인 사람의 모든 정보 출력
+
+select * from emp where job='MANAGER' or job='SALESMAN';
+
+--18.부서번호가 20,30번을 제외한 모든 사람의 이름, 사원번호, 부서번호 출력
+
+select ename, empno, deptno from emp where deptno != 20 and deptno != 30;
+
+--19.이름이 S로 시작하는사원의 사원번호, 이름, 입사일, 부서번호 출력
+
+select empno, ename, hiredate, deptno from emp where ename like 'S%';
+
+--20.입사일이 81년도인 사람의 모든 정보 출력
+
+select * from emp where hiredate > '80/12/31' and hiredate < '82/01/01';
+
+--21.이름중 S자가들어가 있는 사람만 모든정보 출력
+
+select * from emp where ename like '%S%';
+
+--22.이름이 S로시작하고 마지막 글자가 T인 사람의 모든 정보 출력(단 이름은 전체 5자리)
+
+select * from emp where ename like 'S___T';
+
+--23.첫번째 문자는관계없고 두번째 문자가 A인사람의 정보출력
+
+select * from emp where ename like '_A%';
+
+--24.커미션이 NULL인사람의 정보를출력
+
+select * from emp where comm is null;
+
+--25.커미션이 NULL이아닌 사람의 모든 정보 출력
+
+select * from emp where comm is not null;
+
+--26.부서가 30번부서이고 급여가1500이상인 사람의 이름, 부서,우러급출력
+
+select ename, deptno, sal from emp where deptno = 30 and sal >= 1500;
+
+--27.이름의 첫글자가 K로 시작하거나부서번호가 30번인사람의 사원번호, 이름, 부서번호 출력
+
+select empno, ename, deptno from emp where ename like 'K%' or deptno=30;
+
+--28.급여가 1500이상이고 부서번호가 30번인 사원중 직업이 MANAGER인 사람의 정보출력
+
+select * from emp where sal >= 1500 and deptno = 30 and job='MANAGER';
+
+--29.부서번호가 30번인 사람중 사원번호 정렬하라
+
+select * from emp where deptno=30 order by empno;
+
+--30.급여가 많은 순 정렬
+
+select * from emp order by sal desc;
+
+--31.부서번호로 오름차순 정렬후 급여많은순 출력
+
+select * from emp order by deptno , sal desc;
+
+--32.부선번호로 내림차순정렬하고 이름순 오름차순, 급여순 내림차순 정렬
+
+select * from emp order by deptno desc, ename, sal desc;
+	
+<Oracle> 200916
+==날짜
+날짜 - 날짜 = 숫자
+날짜 + 숫자 = 날짜
+날짜 + 숫자 / 24 = 날짜에 시간을 더함
+날짜 + 숫자 / 1440 = 날짜에 분을 더함
+select sysdate from dual;
+alter session
+	set nls_date_format = 'yy-mm-dd hh:mi:ss am' ;
+select sysdate from dual;
+select sysdate, sysdate+1,sysdate+1/24,sysdate+1/1440 from dual;
+select saname,sahire,months_between(sysdate,sahire) from sawon;
+select saname,sahire,add_months(sysdate,2) from sawon;
+select sysdate,add_months(sysdate,5),last_day(sysdate) from dual;
+select sysdate,next_day(sysdate,'금') from dual;
+
+
+==사원테이블에서 이름, 입사일, 근무기간 출력
+==단 근무기간은 xx년 xx개월 형태
+select saname, sahire from sawon;
+select saname, sysdate-sahire from sawon;
+select saname, months_between(sysdate,sahire) 개월 from sawon;
+예 27개월 xxxx근무 ==> 27/12 2년 3개월
+select saname,
+	floor(months_between(sysdate,sahire)/12)||'년'||
+	floor(mod(months_between(sysdate,sahire),12))||'개월' 근무기간 
+	from sawon;
+	
+==데이터형 변환
+to_char
+to_number
+to_date
+select 10000,to_char(10000) from dual;
+select 10000,to_char(10000, '$99,999') from dual;
+select 10000,to_char(10000, '$000,000') from dual;
+select saname,to_char(sahire,'yyyy"년" mm"월" dd"일"')from sawon;
+select '5000',to_number('5000') from dual;
+
+==그룹함수
+select * from sawon;
+select count(*) from sawon;
+select sum(sapay), avg(sapay), min(sapay), max(sapay) from sawon;
+--직책별 급여의 평균
+select sajob, avg(sapay) from sawon
+	group by sajob;
+--직책별 급여의 평균과 인원수	
+select sajob, avg(sapay),count(*) from sawon
+	group by sajob;	
+--부서별 최대급여, 최소급여, 급여평균
+select sajob 직책, max(sapay) 부서최대, min(sapay) 부서최소, avg(sapay) 부서평균, count(*) 부서인원 from sawon
+	group by deptno;
+--부서별 최소급여, 최대급여, 급여평균, 인원수(단, 급여평균이 2000이상)
+( 여기서 where 안쓰고 having 쓴다. 그룹절의 경우에는 이렇게 씀)
+select min(sapay), max(sapay), avg(sapay), count(*) from sawon
+		group by deptno
+		having avg(sapay) >= 2000;
+--사원테이블에서 과장, 대리, 부장의 급여합계와 인원수 출력
+select sajob, sum(sapay), count(*) from sawon	
+	group by sajob
+	having sajob='과장' or sajob='대리' or sajob = '부장';
+select sajob, sum(sapay), count(*) from sawon	
+	group by sajob
+	having sajob in ('과장', '부장', '대리');
+--조인
+select * from personnel;
+select * from division;
+--사번, 이름, 급여, 부서번호, 부서명, 부서전화번호 => 경우의 수가 길어짐
+select pno, pname, pay, personnel.dno, dname, phone 
+	from personnel, division;  
+--Equi 조인
+select pno, pname, pay, personnel.dno, dname, phone 
+	from personnel, division
+	where personnel.dno=division.dno;
+--테이블명에 별칭주기
+select pno, pname, pay, p.dno, dname, phone 
+	from personnel p, division d
+	where p.dno=d.dno;
+
+==
+select * from student;
+select * from score; --접수번호, 수능점수, 내신점수
+select * from tech;  --접수번호, 면접점수, 체력장
+select * from part;
+--접수번호, 이름, 출신학교, 수능점수, 내신점수
+select student.bunho, irum, school, s1, s2
+	from student, score
+	where student.bunho=score.bunho;
+--접수번호, 이름, 출신학교, 수능점수, 내신점수, 면접점수, 체력장
+select student.bunho, irum, school, s1, s2, s3, s4
+	from student, score, tech
+	where 
+	student.bunho=score.bunho and
+	student.bunho=tech.bunho;
+
+
+<Oracle> 200916
+
+select * from student; --접수번호, 이름, 주소, 출신학교, 학과코드
+select * from score; --접수번호, 수능점수, 내신점수
+select * from tech; --접수번호, 면접점수, 체력장
+select * from part; --학과코드, 학과명
+
+--접수번호, 이름, 수능점수, 내신점수, 면접점수, 체력장 
+select student.bunho, irum, s1, s2, s3, s4 
+	from student, score, tech
+	where student.bunho=score.bunho
+	and student.bunho=tech.bunho;
+
+--접수번호, 이름, 수능점수, 내신점수, 면접점수, 체력장, 합계
+select st.bunho, irum, s1, s2, s3, s4, s1+s2+s3+s4 total
+	from student st, score sc, tech t
+	where st.bunho=sc.bunho
+	and st.bunho=t.bunho;
+	
+--접수번호, 이름, 학과명, 수능점수, 내신점수, 면접점수, 체력장, 합계	
+select st.bunho, irum, pt.partname, s1, s2, s3, s4, s1+s2+s3+s4 total
+	from student st, score sc, tech t, part pt
+	where st.bunho=sc.bunho
+	and st.bunho=t.bunho
+	and st.partcd=pt.partcd;
+	
+==join ~ on 구문으로
+--접수번호, 이름, 출신학교, 학과명
+select bunho, irum, school, partname
+	from student s, part p
+	where s.partcd=p.partcd;
+select bunho, irum, school, partname
+	from student s join part p
+	on s.partcd=p.partcd;
+	
+--접수번호, 이름, 수능점수, 내신점수, 면접점수, 체력장 
+select student.bunho, irum, s1, s2, s3, s4 
+	from student 
+	join score on student.bunho=score.bunho
+	join tech on student.bunho=tech.bunho;
+	
+--접수번호, 이름, 학과명, 수능점수, 내신점수, 면접점수, 체력장, 합계	
+select st.bunho, irum, pt.partname, s1, s2, s3, s4, s1+s2+s3+s4 total
+	from student st
+	join score sc on st.bunho=sc.bunho
+	join tech t on st.bunho=t.bunho
+	join part pt on st.partcd=pt.partcd;
+	
+--퍼스널테이블과 디비젼테이블을 이용하여 이름, 업부, 부서명, 입사일 
+select pname, job, dname, startdate
+	from personnel ps
+	join division dv on ps.dno=dv.dno;
+		
+==using 구문으로
+select pname, job, dname, startdate
+	from personnel join division using(dno);
+	
+==Non Equi 조인
+personnel, paygrade 테이블을 이용하여 사번, 이름, 급여	, 급여등급 출력
+select pno, pname, pay, grade
+	from personnel, paygrade
+	where pay between lowpay and highpay;
+	
+==self 조인 (사번, 이름, 업무, 급여, 관리자명)
+select p1.pno, p1.pname, p1.job, p1.pay, p2.pname 관리자명
+	from personnel p1, personnel p2
+	where p1.manager=p2.pno;
+	
+==outer 조인	
+insert into sawon (sabun, saname) values (100, '콩쥐');
+insert into sawon (sabun, saname) values (101, '팥쥐');
+insert into dept values (91, '이벤트', '서산');
+
+--일부빈칸 있을때에도 다 출력 사번 이름, 급여, 부서명
+select sabun, saname, sapay, dname
+	from sawon, dept
+	where sawon.deptno=dept.deptno;  => 콩쥐, 팥쥐가 안나와
+	
+select sabun, saname, sapay, dname
+	from sawon, dept
+	where sawon.deptno=dept.deptno(+);	=> 부서 없어도 다나와
+		
+select sabun, saname, sapay, dname
+	from sawon, dept
+	where sawon.deptno(+)=dept.deptno;	=> 사람 없어도 다나와
+	
+select sabun, saname, sapay, dname
+	from sawon, dept
+	where sawon.deptno(+)=dept.deptno(+);	안대
+	
+select sabun, saname, sapay, dname
+	from sawon right outer 
+	join dept on sawon.deptno=dept.deptno;
+	
+select sabun, saname, sapay, dname
+	from sawon left outer 
+	join dept on sawon.deptno=dept.deptno;
+
+select sabun, saname, sapay, dname
+	from sawon full outer 
+	join dept on sawon.deptno=dept.deptno;	
+	
+==서브쿼리(단일행)
+--김희선과 같은 동네 사는 사원의 이름, 출신학교, 주소 출력
+select irum, school, juso
+	from student
+	where irum='김희선';  =>주소는 경기도다
+
+select irum, school, juso
+	from student	
+	where juso=(select juso from student where irum='김희선');
+	
+--퍼스널테이블에서 워드보다 급여를 많이 받는 사람의 이름, 직책, 급여 출력
+select pname, job, pay from personnel
+	where pay > (select pay from personnel where pname='WORD');
+	
+--제임스랑 같은 직책인 사람의 이름, 직책, 급여 출력
+select pname, job, pay from personnel
+	where job=(select job from personnel where pname ='JAMES');
+
+==다중행 쿼리	
+--30번 부서의 급여보다 많이 받는 사람의 이름, 직책, 급여, 부서번호 출력
+select pname, job, pay from personnel
+	where pay > (select pay from personnel where dno =30); X 서브쿼리가 단일일떄만 가능
+
+--30번 부서 급여 모두에 대해서 다중쿼리 할때	
+select pname, job, pay from personnel
+	where pay >all (select pay from personnel where dno =30);
+
+--30번 부서 급여 어느하나 보다 높을때 대해서 다중쿼리 할때	
+select pname, job, pay from personnel
+	where pay >any (select pay from personnel where dno =30);	
+
+--30번 부서의 급여보다 많이 받는 사람의 이름, 직책, 급여, 부서번호 출력(단, 30번부서제외)
+select pname, job, pay from personnel
+	where pay >any (select pay from personnel where dno =30)
+	and dno!=30;
+
+--30번 부서의 업무와 같은 일을 하는 사람의 이름,직책, 급여, 부서번호 출력
+select pname, job, pay, dno from personnel
+	where job in (select job from personnel where dno =30);
+select pname, job, pay, dno from personnel
+	where job =any (select job from personnel where dno =30);	
+
+--직원의 평균급여보다 많이 받는 사람의 이름, 직책, 급여, 부서번호 출력
+select pname, job, pay, dno from personnel
+	where pay > (select avg(pay) from personnel);
+
+==입력
+insert into 테이블명 (컬럼명1, 컬럼명2,,) values (값1, 값2,,,)
+
+insert into personnel (pno, pname, pay)
+	values (9999, '둘리', 100);
+insert into personnel (pno, pname, startdate, pay)
+	values (8888, '희동이', '20/09/16', 10);
+insert into personnel
+	values (7777,'고길동','부장',1111,sysdate,4000,null,20);
+insert into personnel
+	values (5555, '독고탁', '야구선수', null, null, 9999, null, null);
+insert into personnel
+	values (4444, '까치', 'null', 1111, null, null, null, null);
+
+--실행취소
+rollback;
+
+==수정
+update 테이블명 set 컬럼명1=값1, 컬럼명2=값2, ,,, where 조건
+update personnel set job='과장';
+update personnel set job='부장', startdate=sysdate
+	where pay>3000;
+	
+==삭제
+delete from 테이블명 [where 조건]
+delete from personnel where dno=30;
+delete from personnel;
+
+--다시 실행하여 불러오기
+@d:\study\oracle\data.txt;
+
+--쓰레기통 청소
+purge recyclebin;
+
+==다중입력
+--테이블생성
+create table p1
+	as 
+	select pno, pname, pay from personnel
+--조건 만족하는 테이블 생성	
+create table p2
+	as 
+	select pno, pname, pay, pay*0.1 tax from personnel 
+	where pay <3000;
+--값 없고 형식만 따와 구조만 가져와서 테이블 생성	
+create table p3
+	as 
+	select pno, pname, pay, pay*0.1 tax from personnel 
+	where pay <0;
+create table p4
+	as 
+	select pno, pname, pay, pay*0.1 tax from personnel 
+	where 1=0;	
+-- paygrade 항목을 새로 추가한 테이블 생성
+create table p5
+	as 
+	select pno, pname, pay, 1 paygrade from personnel 
+	where 1=0;	
+
+--p11 테이블 : 컬럼 사번, 이름, 급여, 세금을 가지고 데이터 없음
+create table p11
+	as
+	select pno, pname, pay, pay*10 tax from personnel
+	where 1=0;
+	
+
+--p12 테이블 : 컬럼 사번, 이름, 급여, 등급을 가지고 데이터 없음
+create table p12
+	as
+	select pno, pname, pay, pay*10 tax, 1 grade from personnel
+	where 1=0;
+	
+--퍼스널테이블의 데이터가 p11, p12에 입력되도록
+insert all
+	into p11 (pno, pname, pay, tax)
+	values (pno, pname, pay, pay*0.1)
+	into p12 (pno, pname, pay, grade)
+	values (pno, pname, pay, 1)
+	select pno, pname, pay from personnel;
+	
+--테이블 삭제
+drop table 테이블명;
+
+
+<Oracle> 200921
+
+
+==테이블 만들기 삭제하기
+
+conn scott/tiger
+select * from emp;
+
+--e1 사번, 이름, 급여, 입사일 컬럼을 가지는 빈테이블(빈테이블 만들때)
+create table e1
+	as 
+	select empno, ename, sal, hiredate from emp
+	where 1=2;
+	
+--e2 사번, 이름, 직책, 취미 컬럼을 가지는 빈테이블(컬럼이 없을때)
+create table e2
+	as 
+	select empno, ename, job, 'null' hobby from emp
+	where 1=2;
+
+--e1, e2 테이블에 동시에 데이터 입력(단, 취미는 등산으로)
+--hobby가 'null'로 만들어서 자리수가 4바이트 까지가 한계 등산은 한글이므로
+한글자당 3바이트 따라서 6바이트라 못들어감 따라서 수정 필요
+alter table e2
+	modify hobby varchar2(10);
+	
+insert all
+	into e1 (empno, ename, sal, hiredate)
+	values (empno, ename, sal, hiredate)
+	into e2 (empno, ename, job, hobby)
+	values (empno, ename, job, '등산')
+	select empno, ename, sal, hiredate, job from emp;
+	
+--테이블 삭제
+drop table e1;
+drop table e2;
+
+--휴지통 비우기
+purge recyclebin;
+
+
+==병합(입력 + 수정)
+conn happy/day
+
+--모든 부서 loc 단양으로 변경
+create table d3
+	as
+	select * from dept;
+
+create table d4
+	as
+	select * from dept
+	where deptno >= 30;
+	
+insert into d4 values (50, '기획1팀', '서산');
+insert into d4 values (60, '기획2팀', '양양');
+
+update d4 set dname='전산1팀', loc='단양' 
+	where deptno=30;
+update d4 set dname='전산2팀', loc='단양' 
+	where deptno=40;
+
+--d3 테이블에 d4를 병합(중복된 부분은 수정, 중복안된 부분은 입력)
+merge into d3 
+	using d4
+		on (d3.deptno=d4.deptno)
+	when matched then
+		update set d3.dname=d4.dname, d3.loc=d4.loc
+	when not matched then 
+		insert values (d4.deptno, d4.dname, d4.loc);
+	
+==데이터 dictionary
+--형태
+dba_XXXX
+user_XXXX
+all_XXXX
+
+select * from dictionary;	
+desc dictionary
+
+--오라클의 테이블 스페이스 정보
+select TABLE_NAME from dictionary
+	where table_name like '%TABLESPACE%';
+	
+desc DBA_TABLESPACES;
+
+select TABLESPACE_NAME, MAX_SIZE, STATUS 
+	from DBA_TABLESPACES;
+
+--오라클이 사용하는 데이터 파일정보
+select TABLE_NAME from dictionary
+	where TABLE_NAME like '%DATA%';
+	
+desc DBA_DATA_FILES;
+
+select FILE_ID, TABLESPACE_NAME, FILE_NAME, BYTES
+	from DBA_DATA_FILES;
+
+--오라클의 사용자 정보
+desc DBA_USERS;
+
+select USERNAME, DEFAULT_TABLESPACE, ACCOUNT_STATUS,
+	LOCK_DATE, PROFILE
+	from DBA_USERS;
+
+--DEFAULT_TABLESPACE는 쓰는 영역 나타내, 
+--ACCOUNT_STATUS는 열려 있는지 잠겨있는지,나타냄
+
+--happy 사용자 테이블의 위치 확인
+conn happy/day
+select TABLE_NAME from dictionary 
+	where TABLE_NAME like '%TABLE%';
+desc USER_TABLES
+select TABLE_NAME, TABLESPACE_NAME from USER_TABLES;
+
+--잠긴 계정 풀기(system 접속이 필수 / 접속 실패하면 다나가지니까 다시 접속요망)
+conn system/1q2w3e4r!
+conn hr/hr  -> 잠겼기 때문에 접속 안돼
+
+alter user hr
+	identified by hr
+	account unlock;
+
+conn happy/ddd -> 10번 틀리면 잠겨	
+
+--다시 시스템 접속해서 계정만 풀면 돼(비번은 알고있으니까 바꿀필요없지)
+alter user haapy
+	account unlock;
+	
+==사원테이블에서 급여를 많이 받는 순으로 3명가지 이름, 급여, 직책 출력
+select saname, sapay, sajob from sawon
+	order by sapay desc;
+--desc로 안보이지만 모든 테이블엔 rowid와 rownum이 존재
+--rowid : 저장위치
+--rownum : 조회된 순서대로 번호 
+
+select rowid, rownum, saname, sapay, sajob from sawon
+	order by sapay desc;
+
+select * from (select rownum, saname, sapay, sajob from sawon
+	order by sapay desc);
+
+select rownum, saname, sapay, sajob
+	from (select rownum, saname, sapay, sajob from sawon
+		order by sapay desc)
+	where rownum <4;
+
+--퍼스털에서 가장 오래 근무순서대로 5명을 이름, 입사일, 급여 출력
+select pname, startdate, pay
+	from (select * from personnel
+		order by startdate)
+	where rownum < 6;
+
+	
+==트랜잭션 : 프로세스가 처리되는 최소단위 
+(전부다 되거나 안되거나 ex)입금출금 동시되거나 둘다안되거나)
+	commit-트랜잭션 정상처리, rollback-트랜잭션 이전상태로
+
+DDL : 오라클, db, tablespace, object를 생성, 수정, 삭제해주는 명령어
+	auto commit 수행
+DCL : 사용자에게 권한을 부여, 박탈
+	auto commit 수행
+DML : 데이터 조작 언어, 테이블에 데이터를 입력, 수정, 삭제, 병합 해주는 명령어
+	트랜잭션의 대상
+
+==2이상 동시 오라클 접속 할때 발생하는 일(즉, commit, rollback전까진 최종수정반영X)
+--세션1
+select * from division;
+--세션2
+select * from division;
+
+--세션1
+delete division where dno=30;
+select * from division;
+
+--세션2
+select * from division;
+update division set position='강릉'; -> 세션1에서 작업중이니까 멈춰
+
+--세션1 
+commit; -> 하는 순간 드디어 세션2가 실행되면서 강릉 추가됨
+
+delete division where dno<30; ->세션2가 작업중이니까 멈춰
+
+--세션2
+rollback; -> 하는 순간 드디어 세션1가 실행되면서 30번 미만 삭제됨
+
+==오라클 삭제(https://wookoa.tistory.com/304)
+1)오라클 서비스 중지
+2)프로그램및기능-오라클 삭제
+3)오라클 설치폴더 삭제 (C:\oraclexe)
+4)윈도우+R - regedit 
+- HKEY_LOCAL_MACHINE\SOFTWARE\ORACLE 삭제
+- HKEY_LOCAL_MACHINE\SYSEM\ControlSet001\Service Oralce 키워드 삭제
+- HKEY_LOCAL_MACHINE\SYSEM\ControlSet002\Service Oracle 키워드 삭제
+- HKEY_LOCAL_MACHINE\SYSEM\CurrentControlSet\Services Oracle 키워드 삭제
+- HKEY_CLASSES_ROOT에서 Ora로 시작되는 모든 것 삭제
+5)재부팅후 재설치
+
+==재설치 setting
+#1 테이블스페이스 생성
+create tablespace 테이블스페이스명
+ 	datafile ‘파일명’ size 크기;
+create tablespace autumn
+	datafile ‘D:\study\db\autumn.dbf’ size 10m;
+
+#2 사용자 생성
+create user 사용자명
+	identified by 암호
+	[default tablespace 테이블스페이스명];
+	
+--happy 사용자 생성
+create user happy
+	identified by day
+	default tablespace summer;
+
+#3 권한부여
+grant 권한1, [권한2 …] to 사용자명;
+grant connect, resource to happy;
+
+#4 사용자 접속
+conn happy/day
+@d:\study\oracle\data.txt
+select * from tab;
+
+--scott 사용자 생성(scott.sql)
+conn system/1234
+create user scott
+	identified by TIGER;
+@C:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin\scott.sql
+show user
+select * from tab;
+conn system/1234
+alter user scott
+	identified by tiger;
+	
+--기본설정
+set linesize 200
+set pagesize 30
+col XXX(컬럼이름) format a10
+
+
+
+
+
+==외부파일 입력	
+	
+	
+	
+	
+<Oracle> 200922
+
+==크기 순서
+1)DB
+2)테이블스페이스(system, undo, temp..) 
+3)세그먼트(table, index, view..)
+4)익스턴트
+5)블럭
+
+==테이블스페이스 생성
+create tablespace 테이블스페이스명
+	datafile '경로 및 파일명' size 크기 ['경로 및 파일명2' size 크기..]
+
+--파일 여러개도 가능
+create tablespace spring
+	datafile 'D:\study\db\spring1.dbf' size 4M,
+		'D:\study\db\spring2.dbf' size 4M;
+
+desc dba_data_files;
+select TABLESPACE_NAME, FILE_NAME, BYTES from dba_data_files;
+
+create tablespace winter
+	datafile 'D:\study\db\winter.dbf' size 10M;
+
+==테이블스페이스 수정
+1)데이터파일 추가
+alter tablespace spring
+	add datafile 'D:\study\db\spring3.dbf' size 4M;
+
+select TABLESPACE_NAME, FILE_NAME, BYTES from dba_data_files
+	order by TABLESPACE_NAME;
+	
+2)데이터파일의 크기 조정
+alter database
+	datafile 'D:\study\db\winter.dbf' resize 20M;
+
+3)데이터 파일을 자동증가로 변경
+create tablespace summer
+	datafile 'D:\study\db\summer.dbf' size 10M;
+	
+alter database
+	datafile 'D:\study\db\summer.dbf' 
+	autoextend on next 2M maxsize 20M;
+
+--summer사용자 tom 생성해서 써보기
+create user tom
+	identified by jerry
+	default tablespace summer;
+	
+grant connect, resource to tom;
+
+conn tom/jerry
+select * from tab;
+
+--tom에서 테이블 생성 후 용량 채우자
+create table test1(no number, irum varchar2(10), day date);
+insert into test1 values (1, 'park', sysdate);
+
+--반복문 실행
+begin 
+	for i in 2..100000 loop
+		insert into test1 values (i, 'kim', sysdate);
+	end loop;
+end;
+/
+
+==테이블스페이스 삭제
+conn system/1q2w3e4r!
+drop tablespace spring; ->데이터파일 남음
+drop tablespace summer; ->불가(데이터 있어서)
+
+--데이터가 안에 있을 경우엔 컨텐츠까지 날려야하고
+drop tablespace summer
+	including contents;
+--데이터파일까지 날려야 db폴더내 데이터파일까지 자체적으로 날릴수 있어
+drop tablespace winter
+	including contents and datafiles;
+drop tablespace autumn
+	including contents and datafiles;
+	
+
+create tablespace autumn
+	datafile 'D:\study\db\autumn.dbf' size 10m;
+create tablespace winter
+	datafile 'D:\study\db\winter.dbf' size 10m;	
+	
+desc dba_users
+select USERNAME, DEFAULT_TABLESPACE from dba_users;
+
+--happy 사용자는 autumn, tom 사용자는 winter 테이블스페이스 사용하도록 설정
+alter user tom
+	default tablespace winter;
+alter user happy
+	default tablespace autumn;
+select USERNAME, DEFAULT_TABLESPACE from dba_users;
+
+conn happy/day
+@D:\study\oracle\data.txt
+select * from tab;
+--테이블이 저장된 테이블스페이스 확인 (happy는 user니까 dba_users아닌 걍 user)
+desc user_tables
+select TABLE_NAME, TABLESPACE_NAME from user_tables;
+
+--모두 autumn 되어있으니 winter도 해보자
+create table test1 (
+	a number,
+	b varchar2(10),
+	c date)
+	tablespace winter;
+select TABLE_NAME, TABLESPACE_NAME from user_tables;
+
+
+==테이블스페이스 이동(하드 변경될 때 주로 이용)
+conn system/1q2w3e4r
+select TABLESPACE_NAME, FILE_NAME, BYTES from dba_data_files
+	order by TABLESPACE_NAME;
+	
+--D:\study\db\autumn.dbf 를 D:\down\autumn.dbf 로 이동
+1)테이블스페이스 상태변경
+alter tablespace autumn offline;
+2)데이터파일 이동 : 걍 탐색기에서 이동하기
+3)데이터파일 위치 정보 변경(오라클내에서 이동한거 인식 못하니까 알려주자)
+alter tablespace autumn
+	rename datafile 'D:\study\db\autumn.dbf' 
+	to 'D:\down\autumn.dbf';
+4)테이블스페이스 다시 상태변경
+alter tablespace autumn online;
+
+select TABLESPACE_NAME, FILE_NAME, BYTES from dba_data_files
+	order by TABLESPACE_NAME;
+5) happy로 확인해보자 잘 이동됐는지
+
+
+==실습 ( 현사용자 happy)
+-- a는 기본형 / b는 총5자리 / c는 총5자리, 그중 소숫점 2자리
+desc personnel;
+--숫자형 테이블 생성
+create table t1 (
+	a number,
+	b number(5),
+	c number(5,2)
+	);
+insert into t1 values (10/7, 10/7, 10/7);
+select * from t1; 
+insert into t1 values (1000/7, 1000/7, 1000/7);
+select * from t1; 
+
+--날짜형 테이블 생성 (timestamp옆 숫자는 초단위 소숫점자리)
+create table t2 (
+	a date,
+	b timestamp,
+	c timestamp(0),
+	d timestamp(9)
+	);
+insert into t2 values (sysdate, sysdate, sysdate, sysdate);
+
+--문자형 테이블 생성 (char는 점하나 있어도 용량 전체 차지해 / 
+				varchar2는 데이터따라 쓰는 공간 용량 달라져)
+create table t3 (
+	a varchar2(10),
+	b char(10)
+	);
+insert into t3 values ('aa', 'aa');
+
+
+<Oracle> 200923
+
+==jusorok table 생성
+select * from tab;
+create table jusorok(
+	no number(3),
+	irum varchar2(30),
+	tel varchar2(20)
+	);
+desc jusorok;	
+
+--컬럼 추가
+alter table jusorok
+	add (addr varchar2(50));
+desc jusorok;
+
+--컬럼명 변경
+alter table jusorok
+	rename column tel to hp;
+desc jusorok;	
+
+--컬럼 길이변경
+alter table jusorok
+	modify (addr varchar2(100));
+	
+--컬럼 추가
+alter table jusorok
+	add (email varchar2(50));
+desc jusorok;
+
+--컬럼 삭제
+alter table jusorok
+	drop column addr;
+
+--테이블명 변경
+rename jusorok to member;
+select * from tab;
+desc member;
+
+--테이블 삭제
+drop table member;
+drop table t1;
+drop table t2;
+drop table t3;
+
+--휴지통 비우기
+purge recyclebin;
+
+--테이블 생성 및 제약조건
+conn tom/jerry
+create table hobby(
+	hno number, --취미번호
+	hname varchar2(30) --취미이름
+	);
+select * from tab;
+insert into hobby values(10,'농구');
+insert into hobby values(10,'배구');
+insert into hobby (hname) values ('축구');
+
+==제약사항
+primary key : 중복불가 + 필수입력
+unique    	: 중복불가 only
+not null 	: 필수입력 only
+check 		: 지정된 값만 등록
+foreign key : 다른테이블의 데이터를 참조
+
+	
+drop table hobby;
+
+==제약사항 적용해서 테이블 만들기
+create table 테이블명 (
+	컬럼명1, 데이터형 [제약사항1],
+	컬럼명2, 데이터형 [제약사항2], ..
+	);
+	
+create table hobby(
+	hno number primary key,
+	hname varchar2(30)
+	);
+insert into hobby values(10,'농구');
+insert into hobby values(10,'배구');
+insert into hobby (hname) values ('축구');
+
+alter table hobby
+	add (manager varchar2(20) unique);
+
+alter table hobby
+	add (loc varchar2(20) not null); --기존데이터에 어긋나서 error
+	
+insert into hobby values (20, '배구', null);
+insert into hobby values (30, '축구', '축구장');
+insert into hobby values (40, '족구', '축구장'); --unique는 중복허용안함 error
+
+create table sawon(
+	sno number(2) primary key,
+	sname varchar2(30) not null,
+	gender varchar2(10) check gender in ('남', '여'),
+	timesal number check timesal > 8950,
+	hno number);
+
+insert into sawon (sno, sname) values (1, '둘리');
+insert into sawon (sno, sname, gender) values (2, '고길동','남');
+insert into sawon (sno, sname, gender,timesal) 
+	values (3, '희동이','여',9000);
+insert into sawon values(
+	4, '호날두', '남', 8960, 30);
+insert into sawon values(
+	5, '조단', '남', 9100, 10);
+delete hobby where hno=10;
+drop table hobby;
+drop table sawon;
+
+==다시시작
+create table hobby(
+	hno number primary key,
+	hname varchar2(30) not null,
+	manager varchar2(30) unique);
+create table sawon(
+	sno number primary key,
+	sname varchar2(30) not null,
+	sal number check (sal>1000),
+	city varchar2(10) default '서울',
+	hp varchar2(20) unique,
+	hno number(2) references hobby (hno) );
+	
+insert into hobby values(10, '등산', '김등산');
+insert into hobby values(20, '낚시', '이낚시');
+insert into hobby values(30, '헬스', '박헬창');
+
+insert into sawon (sno, sname, sal, hno)
+	values (1, '김사원', 2000, 10);
+insert into sawon (sno, sname, sal, hno)
+	values (2, '이사원', 3000, 20);
+insert into sawon values
+	(3, '최사원', 3500, '마산', '01012345678', 30);
+insert into sawon values
+	(4, '제갈사원', 4000, '춘천', '01045671230', 50);
+
+delete hobby where hno=20; --foreign key 걸려 있어 child record 있을 땐 불가
+drop table hobby; --따라서 drop 할때도 child table 부터 삭제해야만
+drop table sawon; --parent table 삭제 가능
+
+==제약사항에서 제약명 주기
+create table 테이블명 (
+	컬럼명1 테이터형 [[constraint 제약명] 제약사항1],
+	컬럼명2 테이터형 [[constraint 제약명] 제약사항2]...);
+	
+--제약명 : 테이블명_컬럼명_제약종류(p, u, n, f, c)
+create table hobby (
+		hno number(20) constraint hobby_hno_p primary key,
+		hname varchar2(30) constraint hobby_hname_n not null,
+		mgr varchar2(30)
+		);
+insert into hobby values (10, '농구', '이농구');
+insert into hobby values (10, '배구', '김배구'); ->오류메시지 잘뜨네
+insert into hobby values (20, '배구', '김배구');
+		
+
+create table sawon (
+		sno number(20) primary key,
+		sname varchar2(30) constraint sawon_sname_n not null,
+		hp varchar2(20) constraint sawon_hp_u unique,
+		sal number constraint sawon_sal_c check (sal > 1000),
+		city varchar2(10) default '대전',
+		hno number(20) constraint sawon_hno_f references hobby(hno)
+		);
+
+--현재 사용자의 제약사항 조회
+select table_name from dictionary
+	where table_name like '%CONSTRAINTS%';
+desc USER_CONSTRAINTS
+select CONSTRAINT_NAME, CONSTRAINT_TYPE, SEARCH_CONDITION
+	from user_constraints;
+
+--제약 삭제
+alter table sawon
+	drop constraint sawon_sal_c;
+alter table sawon 
+	drop constraint SAWON_HNO_F;
+alter table sawon	
+	drop constraint SYS_C007037;
+
+alter table hobby
+	drop primary key;
+	
+drop table sawon;
+drop table hobby;
+
+==컬럼 레벨 제약 (컬럼에다가 제약을 주는 것)
+create table hobby(
+	hno number,
+	hname varchar2(30),
+	mgr varchar2(30),
+	constraint hobby_hno_p primary key (hno),
+	constraint hobby_hname_u unique (hname)
+	);
+
+--not null은 컬럼레벨만 가능 즉, 컬럼 바로 옆에 적어줘야해
+create table sawon(
+	sno number,
+	sname varchar2(30) constraint sawon_sname_n not null,
+	sal number,
+	city varchar2(10) default '강릉',
+	hp varchar2(20),
+	hno number,
+	constraint sawon_sno_p primary key(sno),
+	constraint sawon_sal_c check(sal>1000),
+	constraint sawon_hno_f foreign key (hno) 
+		references hobby(hno)
+	);
+
+--컬럼 레벨로 361page 1번
+create table dept2(
+	depno varchar2(6) constraint dept2_dptno_p primary key,
+	dname varchar2(30)
+	);
+
+create table tcons(
+	no number(5) constraint tcons_no_pk primary key,
+	name varchar2(20) constraint tcons_name_nn not null,
+	jumin varchar2(13) constraint tcons_jumin_nn not null,
+	area number(1) constraint tcons_area_ck check(area>=1 and area<=4),
+	deptno varchar2(6) constraint tcons_deptno_fk references dept2(depno),
+	constraint tcons_jumin_uk unique (jumin)
+	);
+	
+--if unique 제약 추가시
+alter table tcons
+	add constraint tcons_jumin_uk unique (jumin);
+제약 수정 불가 따라서 지우고 다시 해야해
+중복된 데이터가 있는데 유니크 제약도 추가로 줄 순 없어
+
+--복합키 (혼자서 primary key 가 될수 없을때/ 컬럼레벨로 줄수 없어 테이블레벨로)
+--계산 필요 없을 땐 꼭 number 안주고 varchar2로 줘도돼
+create table student(
+	grade varchar2(2),
+	ban varchar2(2),
+	bunho varchar2(2),
+	irum varchar2(20),
+	hp varchar2(20),
+	constraint student_grade_ban_bunho_p 
+		primary key(grade,ban,bunho));
+		
+insert into student values('1', '1', '1', '김일번', '010');
+insert into student values('1', '1', '2', '장이번', '011');
+insert into student values('1', '1', '3', '최삼번', '012');
+insert into student values('1', '1', '4', '도사번', '013');
+insert into student values('2', '1', '1', '이첫째', '010');
+insert into student values('2', '1', '2', '이둘째', '011');
+insert into student values('2', '1', '3', '이셋째', '012');
+insert into student values('2', '1', '4', '이넷째', '013');
+
+insert into student values('1', '1', '3', '오류임', '013'); -- error
+
+--DML, 테이블 스페이스, 테이블 생성
+
+==과제
+1.영구테이블 스페이스 september 생성 -데이터 파일 september01.DBF (10M)
+create tablespace 테이블스페이스명
+	datafile '경로 및 파일명' size 크기 ['경로 및 파일명2' size 크기..]
+create tablespace september
+	datafile 'D:\study\db\september01.dbf' size 10M;
+
+2.september에 데이터 파일 추가 -데이터 파일 september02.DBF (10M)
+자동확장모드 100KB단위,최대 50M
+alter tablespace september
+	add datafile 'D:\study\db\september02.dbf' size 10M;
+
+alter database
+	datafile 'D:\study\db\september02.dbf' 
+	autoextend on next 100kb maxsize 50M;
+
+
+3.데이터닉션너리에서 정보를 표시
+
+
+4.september테이블 스페이스를 d:\down소로 이동
+
+1)테이블스페이스 상태변경
+alter tablespace september offline;
+2)데이터파일 이동 : 걍 탐색기에서 이동하기
+3)데이터파일 위치 정보 변경(오라클내에서 이동한거 인식 못하니까 알려주자)
+alter tablespace september
+	rename datafile 'D:\study\db\september02.dbf' 
+	to 'D:\down\september02.dbf';
+4)테이블스페이스 다시 상태변경
+alter tablespace september online;
+
+select TABLESPACE_NAME, FILE_NAME, BYTES from dba_data_files
+	order by TABLESPACE_NAME;
+
+
+5.사용자 keyboard/mouse 생성하여 권한부여, 기본테이블스페이스 september
+create user keyboard
+	identified by mouse
+	default tablespace september;
+	
+grant connect, resource to keyboard;
+
+
+6.september 테이블 스페이스에 data.txt 수행
+@D:\study\oracle\data.txt
+
+
+7.septemberG 테이블 스페이스및 연관된 파일 삭제후 결과 확인
+conn system/1q2w3e4r!
+
+drop tablespace september
+	including contents and datafiles;
+
+
+
+--DML, 테이블 생성 
+
+
+<Oracle> 200925
+
+==외부파일 입력
+http://www.naver.com/robots.txt ->disallow
+https://www.bobaedream.co.kr/robots.txt -> allow
+
+--외부파일 : 읽기 전용
+D:\study\oracle\product.csv
+1)디렉토리 생성(일반사용자는 권한없어, 권한부여 해야해)
+create directory 디렉토리명 as 경로;
+create directory source as 'D:\study\oracle'; ->error
+
+2)권한부여
+conn system/1q2w3e4r!
+grant dba to tom; 
+
+conn tom/jerry
+create directory source as 'D:\study\oracle';
+
+if) 디렉토리 삭제
+drop directory source;
+
+2)테이블 생성
+create table product_ext(
+no number,
+irum varchar2(20),
+maker varchar2(20),
+price number
+)
+organization external(
+	type oracle_loader
+	default directory source
+	location ('product.csv')
+);
+
+
+3)조회
+select * from product_ext;
+
+4)데이터입력
+insert into product_ext values (60, '건조기', 'LG', 150000); ->error
+
+4-1)일반테이블로 변경
+create table product
+	as
+	select * from product_ext;
+	
+alter table product
+	add constraint product_no_p primary key(no);
+	
+alter table product
+	add constraint product_price_c check (price>10000);
+
+alter table product
+	modify (irum varchar2(20) constraint product_irum_n not null);
+	
+insert into product_ext values (60, '건조기', 'LG', 150000);
+
+4-2)외부테이블 삭제
+drop table product_ext;
+
+--시퀀스
+create sequence 시퀀스명 [옵션 ..];
+
+select * from tab;
+create table fruit(
+	fno number constraint fruit_fno_p primary key,
+	fname varchar2(20),
+	price number
+);
+create table member(
+	mno number constraint member_mno_p primary key,
+	fname varchar2(20),
+	price number
+);
+
+create sequence fruit_seq;
+create sequence member_seq
+	increment by 10
+	start with 10;
+
+select table_name from dictionary
+	where table_name like '%SEQ%';
+select * from USER_SEQUENCES;
+
+--속성
+시퀀스명.nextval : 자동번호 부여
+시퀀스명.currval : 마지막으로 부여된 번호 조회
+
+insert into fruit values (fruit_seq.nextval, '포도', 2000);
+insert into fruit values (fruit_seq.nextval, '사과', 3000);
+insert into fruit values (fruit_seq.nextval, '수박', 1000);
+select * from fruit;
+
+insert into member values (member_seq.nextval, '호동이', '111');
+insert into member values (member_seq.nextval, '포동이', '222');
+insert into member values (member_seq.nextval, '대동이', '333');
+select * from member;
+
+select fruit_seq.currval, member_seq.currval from dual;
+
+rollback;
+
+insert into fruit values (fruit_seq.nextval, '짭짜리', 1000);
+insert into fruit values (fruit_seq.nextval, '사과', 1000);
+select * from fruit;  ->123 다음 2122시작해 왜그래?
+
+--Cache 사이즈 : 기본으로 20개씩 생성해서 쓰고 다쓰면 또 20개씩 가져다 쓴다
+select * from USER_SEQUENCES;
+
+--dba 권한 제거
+conn system/1q2w3e4r
+revoke dba from tom;
+conn tom/jerry;
+
+==뷰 : 가상의 테이블, 쿼리만 저장, 사용의 편의성, 보안
+@D:\study\oracle\data.txt
+--번호, 이름, 수능, 내신, 면접, 실기, 학과명
+select student.bunho, irum, s1, s2, s3, s4, partname
+	from student, score, tech, part
+	where 
+	student.bunho=score.bunho and
+	student.bunho=tech.bunho and
+	student.partcd=part.partcd;
+	
+--뷰의 생성 및 수정
+create or replace view 뷰이름 : replace 까지 하면 같은 이름의 뷰를 덮어쓸수있음
+	as select 절 [옵션] 
+
+create view haksa
+		as
+		select student.bunho, irum, s1, s2, s3, s4, partname
+			from student, score, tech, part
+			where 
+			student.bunho=score.bunho and
+			student.bunho=tech.bunho and
+			student.partcd=part.partcd;  ->권한 뺏었으니 안돼 다시줘야해
+
+conn system/1q2w3e4r			
+grant dba to tom;
+conn tom/jerry
+
+create or replace view haksa
+		as
+		select student.bunho, irum, s1, s2, s3, s4, s1+s2+s3+s4 hap, partname
+			from student, score, tech, part
+			where 
+			student.bunho=score.bunho and
+			student.bunho=tech.bunho and
+			student.partcd=part.partcd;
+
+select * from haksa;
+
+--뷰의 삭제
+drop view haksa;
+
+--뷰의 보안
+create view insa
+	as
+	select sabun, saname, sajob, sahire from sawon;
+
+--뷰를 바꿨는데 테이블이 바뀐다.. 따라서 설정해줘야해
+select * from insa;
+update insa set sajob='팀장';
+select * from insa;
+
+--뷰 (읽기전용으로 만들기)
+create view insa2
+	as
+	select sabun, saname, sajob, sahire from sawon
+	with read only;
+	
+update insa2 set sajob='부장'; -> error 읽기만해라
+
+create or replace view insa10
+	as
+	select sabun,saname,sajob,deptno from sawon
+	where deptno=10;
+
+select * from insa10;
+
+insert into insa10 values(91,'둘리','과장',10);
+insert into insa10 values(92,'노돌리','사원',10);
+insert into insa10 values(93,'희동쓰','사원',20); ->insa10에선 안보여(sawon은보여)
+select * from insa10;
+select * from sawon;
+
+--insa10에서 20부서까지 작성되는건 이상해. 20은 안그렇게 해보자
+create or replace view insa20
+	as
+	select sabun,saname,sajob,deptno from sawon
+	where deptno=20
+	with check option;
+
+insert into insa20 values (81,'무사시','사원',20);
+insert into insa20 values (82,'링링','사원',30); ->error (옵션줬으니)
+
+--현재 사용자의 뷰 조회
+desc dictionary;
+select table_name from dictionary
+	where table_name like '%VIEW%';
+select * from USER_VIEWS;
+
+
+--index : 기본키와 유니크 제약에 자동생성 (primary key 는 하나밖에 없어서 2번째로도 가능)
+select object_name, Object_type for user_objects;
+alter table member
+	drop constraint member_mno_p;
+alter table fruit
+	drop primary key;
+
+--index 수동생성
+create index 인덱스명 on 테이블명(컬럼명);
+
+create index i_sawon_pay
+	on sawon(sapay);
+	
+select * from sawon where sapay>2000; (index 바탕으로 찾는데 도움줄수도)
+drop index i_sawon_pay;
+
+--index 소문자, 대문자 섞여있는 경우 통일하려고
+create index i_sawon_saname
+	on sawon(upper (saname));
+
+
+<Oracle> 200928
+
+== eXERD 
+식별관계 : 공통컬럼 두개다 기본키인 경우
+비식별관계 : 공통컬럼 중 하나는 기본키, 나머지는 일반컬럼인 경우
+ojdbc6.jar
+
+
+==프로파일 
+conn system/1q2w3e4r!
+select * from dba_profiles;
+
+
+--프로파일 생성
+create profile 프로파일명 limit
+	내용들;
+
+create profile pro1 limit
+	SESSIONS_PER_USER 3 ->(동시접속 최대 3명)
+	IDLE_TIME 10 -> (휴면시간 : 10분간 활동없으면 종료)
+	CONNECT_TIME 10 -> (연결 최대 시간)
+	FAILED_LOGIN_ATTEMPTS 3 ->(패스워드 실패 3번하면 잠김)
+	PASSWORD_LIFE_TIME 5; ->(패스워드 만료일)
+
+select * from dba_profiles
+	where profile in 'PRO1';
+	
+
+--프로파일 사용자 적용	
+desc dba_users;
+select USERNAME, DEFAULT_TABLESPACE, PROFILE from dba_users;
+
+alter user tom
+	profile pro1;
+
+select USERNAME, DEFAULT_TABLESPACE, PROFILE from dba_users;
+
+--tom 비번 3번 실패해서 락 걸리기 / 이후 락 풀기
+conn system/1q2w3e4r!
+alter user tom
+	account unlock;
+conn tom/jerry
+
+--tom으로 최대 3명까지 동시접속
+--프로파일 리소스타입
+select * from dba_profiles
+	where profile in 'PRO1';
+	
+KERNEL : 오라클 삭제 후 실행(커널의 지원은 파라미터 값을 변경해야 적용됨
+PASSWORD : 즉시 실행
+
+alter system set resource_limit=true;
+
+sqlplus tom/jerry
+sqlplus tom/jerry
+sqlplus tom/jerry
+sqlplus tom/jerry -> 이제는 4명부터 동시접속 불가
+
+--프로파일 수정
+conn system/1q2w3e4r!
+
+alter profile pro1 limit
+	IDLE_TIME 5
+	FAILED_LOGIN_ATTEMPTS 5;
+
+select * from dba_profiles
+	where profile in 'PRO1';
+	
+--PASSWORD_VERIFY_FUNCTION
+--utlpwdmg.* 
+--최상위 권한 가진 사용자로 접속
+conn / as sysdba
+
+--utlpwdmg.* 에서 따와서 새로운 함수 f1만들기
+CREATE OR REPLACE FUNCTION f1
+(username varchar2,
+  password varchar2,
+  old_password varchar2)
+  RETURN boolean IS 
+   n boolean;
+   m integer;
+   differ integer;
+   isdigit boolean;
+   ischar  boolean;
+   ispunct boolean;
+   digitarray varchar2(20);
+   punctarray varchar2(25);
+   chararray varchar2(52);
+
+BEGIN 
+   digitarray:= '0123456789';
+   chararray:= 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+   punctarray:='!"#$%&()``*+,-/:;<=>?_';
+
+   -- Check if the password is same as the username
+   IF NLS_LOWER(password) = NLS_LOWER(username) THEN
+     raise_application_error(-20001, 'Password same as or similar to user');
+   END IF;
+
+   -- Check for the minimum length of the password
+   IF length(password) < 4 THEN
+      raise_application_error(-20002, 'Password length less than 4');
+   END IF;
+
+   -- Check if the password is too simple. A dictionary of words may be
+   -- maintained and a check may be made so as not to allow the words
+   -- that are too simple for the password.
+   IF NLS_LOWER(password) IN ('welcome', 'database', 'account', 'user', 'password', 'oracle', 'computer', 'abcd') THEN
+      raise_application_error(-20002, 'Password too simple');
+   END IF;
+
+   -- Check if the password contains at least one letter, one digit and one
+   -- punctuation mark.
+   -- 1. Check for the digit
+   isdigit:=FALSE;
+   m := length(password);
+   FOR i IN 1..10 LOOP 
+      FOR j IN 1..m LOOP 
+         IF substr(password,j,1) = substr(digitarray,i,1) THEN
+            isdigit:=TRUE;
+             GOTO findchar;
+         END IF;
+      END LOOP;
+   END LOOP;
+   IF isdigit = FALSE THEN
+      raise_application_error(-20003, 'Password should contain at least one digit, one character and one punctuation');
+   END IF;
+   -- 2. Check for the character
+   <<findchar>>
+   ischar:=FALSE;
+   FOR i IN 1..length(chararray) LOOP 
+      FOR j IN 1..m LOOP 
+         IF substr(password,j,1) = substr(chararray,i,1) THEN
+            ischar:=TRUE;
+             GOTO findpunct;
+         END IF;
+      END LOOP;
+   END LOOP;
+   IF ischar = FALSE THEN
+      raise_application_error(-20003, 'Password should contain at least one \
+              digit, one character and one punctuation');
+   END IF;
+   -- 3. Check for the punctuation
+   <<findpunct>>
+   ispunct:=FALSE;
+   FOR i IN 1..length(punctarray) LOOP 
+      FOR j IN 1..m LOOP 
+         IF substr(password,j,1) = substr(punctarray,i,1) THEN
+            ispunct:=TRUE;
+             GOTO endsearch;
+         END IF;
+      END LOOP;
+   END LOOP;
+   IF ispunct = FALSE THEN
+      raise_application_error(-20003, 'Password should contain at least one \
+              digit, one character and one punctuation');
+   END IF;
+
+   <<endsearch>>
+   -- Check if the password differs from the previous password by at least
+   -- 3 letters
+   IF old_password IS NOT NULL THEN
+     differ := length(old_password) - length(password);
+
+     IF abs(differ) < 3 THEN
+       IF length(password) < length(old_password) THEN
+         m := length(password);
+       ELSE
+         m := length(old_password);
+       END IF;
+
+       differ := abs(differ);
+       FOR i IN 1..m LOOP
+         IF substr(password,i,1) != substr(old_password,i,1) THEN
+           differ := differ + 1;
+         END IF;
+       END LOOP;
+
+       IF differ < 3 THEN
+         raise_application_error(-20004, 'Password should differ by at \
+         least 3 characters');
+       END IF;
+     END IF;
+   END IF;
+   -- Everything is fine; return TRUE ;   
+   RETURN(TRUE);
+END;
+/
+
+--프로파일 수정
+alter profile pro1 limit
+	PASSWORD_VERIFY_FUNCTION f1;
+
+select * from dba_profiles
+	where profile in 'PRO1';
+	
+alter user tom
+	identified by welcom; -> error 발생 too simple
+	
+alter user tom
+	identified by tom; -> error 발생 id랑 같애
+
+alter user tom
+	profile default;
+	
+--프로파일의 삭제
+drop profile pro1;
+
+==사용자 생성
+create user 사용자명
+	identified by 암호
+	[default tablespace 테이블스페이스명]
+	[profile 프로파일명]
+	[account {lock|unlock}]
+	[quota 크기 on 테이블스페이스명];
+	
+create user pink
+		identified by blue;
+grant connect, resource to pink;
+conn pink/blue
+	
+--사용자 삭제
+drop user pink;
+drop user tom; ->error 데이터가 있기 때문에
+
+drop user tom cascade; ->안에 있는 데이터까지 싹 날리는것
+
+==DCL : Data Control Language
+db내에서 특정작업을 할수 있는 권한을 부여하고 회수하는 기능
+grant : 권한부여
+revoke : 권한회수
+
+--권한종류
+시스템권한 : 오라클 서버에 영향을 주는 권한
+객체권한 : 특정 객체(테이블,인덱스등)에 영향을 주는 권한
+
+--시스템 권한 확인	
+select * from system_privilege_map;
+
+create user u1
+	identified by p1;
+create user u2
+	identified by p2;
+create user u3
+	identified by p3;
+
+grant 권한1, 권한2, ... to 사용자[with admin option]
+
+grant create session, create table to u1;
+grant create session, create table to u2	
+	with admin option;
+	
+conn u1/p1;
+create table t1 (
+	a number,
+	b varchar2(10),
+	c date);  -> error 시스템 테이블스페이스에 권한없음
+	
+conn system/1q2w3e4r
+alter user u1 default tablespace winter;
+alter user u2 default tablespace winter;
+alter user u3 default tablespace winter;
+
+alter user u1	
+	quota unlimited on winter;
+alter user u2
+	quota unlimited on winter;
+alter user u3
+	quota unlimited on winter;
+
+conn u1/p1;
+create table t1 (
+	a number,
+	b varchar2(10),
+	c date);
+
+conn u2/p2;
+create table t2 (
+	a number,
+	b varchar2(10),
+	c date);	
+grant create session, create table to u3; 
+-> admin옵션은 system이 준 옵션을 u2가 다른 사용자 u3 에게도 줄수있다
+
+--권한회수
+revoke create session, create table from u1, u2;  ->u3는 남아있어
+
+
+
+<Oracle> 200929
+
+==롤: 권한의 집합
+conn system/1q2w3e4r!
+revoke create session, create table from u3;
+
+conn u1/p1 -> error
+conn u2/p2 -> error
+conn u3/p3 -> error 다 권한 뺏었어
+
+
+--시스템 롤 확인 (어떤게 있는지)
+conn system/1q2w3e4r
+select * from dba_roles;
+
+--role 생성
+create role 롤이름;
+create role r1;
+
+--role 에게 권한 부여
+grant 권한1, 권한2.. to 롤이름;
+grant create session, create table to r1;
+
+--role 을 사용자에게 부여
+grant 롤이름1, 롤이름2.. to 사용자1, 사용자2..;
+grant r1 to u1, u2; -> u1 u2는 접속 가능 / u3는 불가
+
+--role 에 부여된 권한 확인
+select * from role_sys_privs;
+select * from role_sys_privs where ROLE='R1';
+
+--디폴트롤
+connect : 데이터베이스에 접근의 권한
+resource : 기본적인 (테이블, 인덱스,..) 생성, 변경, 삭제
+		unlimited 테이블스페이스 내장
+dba : DB를 관리하기 위해 필요한 권한
+
+create role r2;
+grant create session, create table, create view to r2;
+grant r2 to u3;
+
+select * from dba_roles;
+select * from role_sys_privs where ROLE like'R_';
+
+--현재 사용자에게 부여된 롤 정보
+select * from user_role_privs;
+
+
+--권한 제거시
+--사용자로부터 롤제거
+revoke 롤이름1, 롤이름2.. from 사용자
+revoke r1 from u1, u2;
+revoke r2 from u3;
+
+--롤삭제
+drop role 롤이름;
+drop role r1; 
+drop role r2;
+
+create role r3;
+grant create session, create table to r3 with admin option;
+grant r3 to u1;
+
+conn u1/p1
+grant r3 to u2; -> error 권한 받았다고 줄순 없어
+
+--객체권한
+grant 권한1, 권한2, ... on 객체명 to 사용자명;
+revoke 권한1, 권한2, ... on 객체명 from 사용자명;
+with grant option
+conn system/1q2w3e4r
+select * from student; -> error 자기한텐 없으니까
+select * from happy.student;
+
+
+conn happy/day -> 해피가 자기 꺼 볼수 있게 권한주는 것
+grant select on personnel to scott;
+grant select, insert, update on personnel to u1;
+
+conn scott/tiger;
+select * from happy.personnel;
+select * from happy.division; ->error 얜 권한 안줬으니
+insert into happy.personnel (pno, pname) 
+	values (7777,'칠칠칠'); ->error 얘도 권한 안줬으니
+	
+conn u1/p1
+update happy.personnel set job='사원';
+select * from happy.personnel;
+delete from happy.personnel; -> error
+
+conn happy/day
+revoke select on personnel from scott;
+revoke insert, update on personnel from u1;
+select * from division;
+
+--모든 사용자에게 권한 부여
+grant select on division to public;
+conn system/1q2w3e4r
+alter user hr
+	identified by hr
+	account unlock;
+
+conn hr/hr
+select * from happy.division;
+
+conn u1/p1
+select * from happy.division;
+
+conn happy/day
+revoke select on division from public;
+
+
+
+==객체롤
+--롤 생성
+conn system/1q2w3e4r!
+create role obj1;
+
+conn scott/tiger
+grant select on emp to obj1;
+grant select, insert on dept to obj1;
+
+--롤부여
+system/1q2w3e4r
+grant obj1 to happy; 
+
+conn happy/day
+select * from scott.emp;
+select * from scott.dept;
+insert into scott.dept values (99, '이벤트', '제주');
+select * from scott.dept;
+grant select on personnel to obj1;
+
+
+--롤 권한 제거
+conn scott/tiger
+revoke select on emp from obj1;
+
+--롤 삭제
+conn system/1q2w3e4r!
+drop role obj1;
+
+--롤에는 with grant option 사용불가
+grant obj1 to u1 with grant option;
+conn happy/day
+grant select on student to u1;
+grant select on student to scott with grant option;
+
+conn u1/p1
+select * from happy.student;
+grant select on happy.student to hr;
+
+conn scott/tiger
+select * from happy.student;
+grant select on happy.student to hr;
+
+
+
+==Synonym (동의어) : 테이블 등의 객체 사용시 간편하게 접근하기 위해 만드는 별명
+conn happy/day
+create [public] synonym 동의어명 for 객체명;
+create synonym dd for division;
+select * from dd;
+select * from division;
+grant select on division to scott;
+
+conn scott/tiger
+select * from dd; -> error 동의어 얘는 못써
+select * from happy.division;
+
+conn happy/day
+create public synonym sss for student;
+grant select on student to scott;
+
+conn scott/tiger
+select * from sss; -> public으로 동의어 만들었으니 쓸수있어
+
+--동의어 삭제
+conn happy/day
+drop synonym dd;
+drop public synonym sss;
+
+
+
+==PL-SQL : 오라클에서 제공하는 프로그래밍 언어
+	하나의 프로그램은 하나의 파일로 실행
+	기본적으로 처리된 결과를 화면에 출력안함
+	출력시는 set serveroutput on
+
+
+--기본형식
+declare
+	변수 자료형
+begin
+	내용(sql or pl/sql)
+end;
+/
+
+--파일 만든 후 .sql로 저장
+declare
+	i number := 3;
+begin
+	dbms_output.put_line('i='||i);
+end;
+/
+
+
+--파일 실행
+set serveroutput on
+@d:\study\oracle\0929.sql
+
+
+--if 문
+if 조건 then
+	명령;
+[else if 조건 then
+	명령;]
+[else 
+	명령;]
+end if;
+
+
+declare
+	i number := 17;
+begin
+	if i >10 then
+		dbms_output.put_line('i값은 10보다 큼');
+	else
+		dbms_output.put_line('i값은 10보다 작거나 같다');
+	end if;
+end;
+/
+
+--파일실행 : 파일 깨질 땐 인코딩 들어가서 안시로 변환
+set serveroutput on
+@d:\study\oracle\0929-2.sql
+
+
+--for 문
+for 변수 in 초기값..최대값 loop
+	명령어;
+end loop;
+end;
+/
+
+declare
+begin
+for i in 1..10 loop
+	dbms_output.put_line(i);
+end loop;
+end;
+/
+
+set serveroutput on
+@d:\study\oracle\0929-3.sql
+
+
+
+--while 문
+while 조건 loop
+	명령어
+end loop;
+
+
+declare
+	i number :=0;
+begin
+	while i < 10 then
+		dbms_output.put_line(i);
+		i:=i+1
+	end loop;
+end;
+/
+
+set serveroutput on
+@d:\study\oracle\0929-4.sql
+
+
+--loop 문
+loop
+	명령;
+end loop;
+
+declare
+	i number := 0;
+begin
+	loop
+		dbms_output.put_line(i);
+		i := i + 1;
+		if i < 10 then
+			exit;
+		end if
+	end loop;
+end;
+/
+
+set serveroutput on
+@d:\study\oracle\0929-5.sql
+
+--exit 문 : 반복문에서 탈출
+
+
+== PL-SQL 에서의 변수 선언 (%는 그타입과 같은 타입이라는 뜻)
+declare 
+	dday date ;
+	pdeptno number(30) not null := 99;
+	ppay sawon.sapay%type;
+	pname sawon.saname%type;
+	a sawon%rowtype;              -> 접근시 a.sabun, a.saname..
+	
+begin
+	....
+end;
+/
+
+--accept : 키보드로 부터 값을 입력 받음, 
+	변수의 값은 프로그램 내에서 &변수의 형태로 사용불가
+accept 변수 prompt '문자열'
+
+--PL-SQL 에서의 select 문자열
+select ~ into 의 형태로 사용
+
+
+
+--실습 사번을 입력받아 해당 사원의 이름, 급여 출력
+set verify off
+accept num prompt '사번='
+declare
+	pname sawon.saname%type;
+	ppay sawon.sapay%type;
+begin
+	select saname, sapay into pname, ppay from sawon
+	where sabun = &num;
+	dbms_output.put_line(pname||'의 급여는 '||ppay);
+end;
+/
+
+@d:\study\oracle\0929-6.sql
+
+
+--실습 특정 사번의 전부 출력
+declare
+	a sawon%rowtype;
+begin
+	select * into a from sawon
+	where sabun = 7;
+	dbms_output.put_line(a.saname||a.sajob||a.sahire);
+end;
+/
+
+@d:\study\oracle\0929-7.sql
+
+
+
+<Oracle> 201005
+
+
+--숫자 두개 입력 받아 합 구하는 함수
+set verify off
+set serveroutput on
+
+accept no1 prompt '숫자1='
+accept no2 prompt '숫자2='
+
+declare
+	hap number := 0;
+begin
+	hap := &no1+&no2;
+	dbms_output.put_line(hap);
+end;
+/
+
+--사원번호 입력받아 그 사원의 보너스를 계산하여 보너스 변경
+-급여가 1000 이하 => 급여의 10%
+-급여가 2000 이하 => 급여의 15%
+-급여가 3000 이하 => 급여의 20%
+-급여가 3000 초과 => 급여의 25%
+
+set verify off
+accept no prompt '사원번호= '
+
+declare
+	ppay personnel.pay%type;
+	
+begin
+	select pay into ppay from personnel where pno=&no;
+	if ppay <=1000 then
+		update personnel set bonus =ppay*0.1 where pno=&no;
+	elsif ppay>1000 and ppay <= 2000 then
+		update personnel set bonus =ppay*0.15 where pno=&no;
+	elsif ppay>2000 and ppay <= 3000 then
+		update personnel set bonus =ppay*0.2 where pno=&no;
+	else
+		update personnel set bonus =ppay*0.25 where pno=&no;
+	end if;
+end;
+/
+
+==커서 : sql 문을 실행할때 마다 처리를 위한 메모리 공간
+--묵시적 커서 : 오라클이 자동으로 생성, 묵시적 커서에 저장되는 데이터는 1행만 가능
+--명시적 커서 : 사용자가 선언하여 사용하고 사용이 끝난 후 정리작업
+
+--명시적커서의 속성
+커서명%isopen : 열려있다
+커서명%notfound : 행이 없다
+커서명%found : 행이 있다
+커서명%rowcount : 처리된 행의 수
+
+--묵시적커서의 속성
+sql%isopen : 열려있다
+sql%notfound : 행이 없다
+sql%found : 행이 있다
+sql%rowcount : 처리된 행의 수
+
+
+--커서 기본 형식
+declare
+	cursor 커서명 is select 절;
+
+begin
+	open 커서명; --1.커서열기
+		loop
+			fetch 커서명 into 변수 ; --2.커서로부터 값을 가져와 변수에 할당(by 한행)
+				반복 명령; 
+		end loop;
+	close 커서명;
+end;
+/
+
+--모든 사원의 이름, 급여, 직책 출력
+
+set verify off
+set serveroutput on
+
+declare
+	cursor c1 is select pname, pay, job from personnel;
+	cname personnel.pname%type;
+	cpay personnel.pay%type;
+	cjob personnel.job%type;
+	
+begin
+	open c1;
+		loop
+			fetch c1 into cname, cpay, cjob;
+			if c1%notfound then
+				exit;
+			end if;
+			dbms_output.put_line(cname||' '||cpay||' '||cjob);
+		end loop;
+	close c1;
+end;
+/
+
+--이름, 급여, 입사일, 근무기간, 급여순위를 구하여 personnel_r 테이블에 삽입
+create table personnel_r (
+pname varchar2(20),
+pay number,
+startdate date,
+gigan varchar2(30),
+rank number(3)
+);
+
+-형식1
+declare
+	cursor c2 is select pname, pay, startdate from personnel;
+	cpname personnel.pname%type;
+	cpay personnel.pay%type;
+	cstartdate personnel.startdate%type;
+	cgigan personnel_r.gigan%type;
+	crank personnel_r.rank%type;
+begin
+	delete from personnel_r;
+	open c2;
+		loop
+			fetch c2 into cpname, cpay, cstartdate;
+				exit when(c2%notfound); 
+				
+				cgigan := floor(months_between(sysdate, cstartdate)/12)||'년'||
+					floor(mod(months_between(sysdate, cstartdate),12))||'개월';
+				select count(*) into crank from personnel where pay>cpay;	
+				crank := crank+1;
+				insert into personnel_r values(cpname, cpay, cstartdate, cgigan, crank);
+			
+		end loop;
+	close c2;
+	commit;
+end;
+/
+
+-형식2
+declare
+	cursor 커서명 is select 절;
+begin
+	for 변수 in 커서명 loop
+		반복할 명령
+		
+
+--형식2 적용		
+declare
+	cursor c2 is select pname, pay, startdate from personnel;
+	cgigan personnel_r.gigan%type;
+	crank personnel_r.rank%type;
+begin
+	delete from personnel_r;
+	for i in c2 loop
+		cgigan := floor(months_between(sysdate, i.startdate)/12)||'년'||
+					floor(mod(months_between(sysdate, i.startdate),12))||'개월';
+		select count(*) into crank from personnel where pay>i.pay;
+		insert into personnel_r values (i.pname, i.pay, i.startdate, cgigan, crank);
+		
+	end loop;
+	commit;
+	
+end;
+/	
+
+
+==case 문
+case [조건]
+	when 조건1 then 실행1
+	when 조건2 then 실행2
+	...
+	[else 실행]
+end case;
+
+--사원의 보너스를 계산하여 이름, 급여, 보너스를 출력(case 문 적용)
+-급여가 1000 이하 => 급여의 10%
+-급여가 2000 이하 => 급여의 15%
+-급여가 3000 이하 => 급여의 20%
+-급여가 3000 초과 => 급여의 25%
+
+set verify off
+set serveroutput on
+
+
+declare
+	cursor c3 is select pname, pay from personnel;
+	bo number; 
+	
+begin
+	for i in c3 loop
+		case 
+			when i.pay<=1000 then 
+				bo := i.pay*0.1;
+			when i.pay<=2000 then 
+				bo := i.pay*0.15;
+			when i.pay<=3000 then 
+				bo := i.pay*0.2;
+			else 
+				bo := i.pay*0.25;
+		
+		end case;
+		dbms_output.put_line(i.pname||' '||i.pay||' '||bo);
+	end loop;
+
+end;
+/
+
+--sung 테이블 읽어 result 값 출력
+create table sung(
+	name varchar2(20),
+	kor number(3),
+	eng number(3),
+	mat number(3)
+	);
+
+insert into sung values('둘리', 90, 44, 94);
+insert into sung values('달리', 100, 88, 93);
+insert into sung values('덜리', 95, 86, 80);
+insert into sung values('돌리', 80, 77, 25);
+insert into sung values('뒬리', 70, 98, 46);
+
+create table result(
+	name varchar2(20),
+	kor number(3),
+	eng number(3),
+	mat number(3),
+	ave number(6,2),
+	tot number(3),
+	grd varchar2(20)
+	);
+
+declare
+	cursor c4 is select name, kor, eng, mat from sung;
+	cavg result.ave%type;
+	ctot result.tot%type;
+	cgrd result.grd%type;
+	
+begin
+	delete from result;
+	for i in c4 loop
+		
+		ctot := i.kor+i.eng+i.mat;
+		cavg := ctot/3;
+		
+		if cavg>=90 then 
+			cgrd := '수';
+		elsif cavg>=80 then 
+			cgrd := '우';
+		elsif cavg>=70 then 
+			cgrd := '미';
+		elsif cavg>=60 then 
+			cgrd := '양';
+		else 
+			cgrd := '가';
+		
+		end if;
+	insert into result 
+		values (i.name, i.kor, i.eng, i.mat, cavg, ctot, cgrd);	
+	
+	end loop;
+
+end;
+/
+
+==예외 : pl/sql이 실행되는 동안 발생되는 에러, 런타임에러(오라클예외 & 사용자정의 예외)
+--형식
+declare
+
+begin
+	exception
+		when 예외이름1 then	
+			처리내용1
+		when 예외이름2 then
+			처리내용2
+			...
+		when others then
+			처리내용         => 위에 정의된 예외에 속하지 않는 경우
+	end;
+/
+
+--사원번호를 입력받아 
+set verify off
+set serveroutput on
+
+accept no prompt '사원번호 = '
+
+declare
+	ppname personnel.pname%type;
+	ppay personnel.pay%type;
+	
+begin
+	select pname, pay into ppname, ppay from personnel
+		where pno=&no;
+	dbms_output.put_line(ppname||' '||ppay);
+	exception
+		when no_data_found then
+			dbms_output.put_line('해당 사원이 없습니다');
+		when too_many_rows then
+			dbms_output.put_line('사원이 두명 이상입니당');
+		when others then
+			dbms_output.put_line('관리자에게 물어봐');
+end;
+/
+
+
+<Oracle> 201006
+
+==사용자 정의 예외
+declare
+	예외 이름 exception;
+begin
+	...
+	raise 예외이름;
+	exception
+		when 예외이름1 then
+			처리내용
+		..
+		when others then
+			처리내용
+end;
+/
+
+--사번과 급여를 입력받아 해당 사원의 급여를 수정 단, 급여가 2000보다 작으면 예외이름
+set serveroutput on
+set verify off
+accept no prompt '사번 =>'
+accept sal prompt '급여 =>'
+
+declare
+vpno personnel.pno%type;
+vpay personnel.pay%type;
+vpname personnel.pname%type;
+minpay exception;
+
+begin
+	if &sal<2000 then	
+		raise minpay;
+	end if;
+	select pno, pay, pname into vpno,vpay,vpname 
+		from personnel where pno=&no;
+	update personnel set pay=&sal where pno=&no;
+	dbms_output.put_line(vpname||'의 급여가'||&sal||'로 수정됨');
+	exception
+		when no_data_found then
+			dbms_output.put_line('해당 사원 없음');
+		when too_many_rows then	
+			dbms_output.put_line('사원이 두명이상');
+		when minpay then
+			dbms_output.put_line('급여 췤');
+end;
+/
+
+==프로시져 : 자주 사용되는 sql 또는 pl-sql을 미리 컴파일 하여 db에 저장한 객체
+--어플리케이션에서 많이 사용
+create procedure 프로시저명
+alter procedure 프로시저명
+drop procedure 프로시저명
+show error
+
+--파라미터 변수 : 변수선언시 길이를 주지 않는다
+	in : 프로시저 호출시 서버로 값을 가지고 들어가는 변수, 기본값으로 생랼가능
+	out : 프로시저 처리된 결과를 반환하는 함수
+
+	
+--형식
+create or replace procedure 프로시저명
+	(파라미터 변수)
+	is
+	변수선언
+begin
+
+end;
+/
+
+--사번을 입력받아 해당 사원을 삭제
+create or replace procedure p1
+(no number)
+is
+begin
+delete personnel where pno=no;
+end;
+/
+
+--show error
+exec p1(1111)
+select * from personnel;
+
+--사번과 급여를 입력받아 해당 사원의 급여 수정
+create or replace procedure p2
+(no number,
+won number)
+is
+begin
+update personnel set pay=won where pno=no;
+end;
+/
+
+execute p2(1112,3333)
+select * from personnel;
+
+--이렇게 프로시저 만들어 놓고 자바나 파이썬에서 얘만 호출해주면 돼
+
+
+--부서번호와 보너스비율을 입력받아 해당 부서의 보너스 금액을 수정됨
+--단 보너스비율은 5%~20% 사이여야 함수
+create or replace procedure p3
+(no number,
+yool number)
+is
+minyool number := 0.05;
+maxyool number := 0.2;
+yoolexec exception;
+dnoexec exception;
+begin
+if yool between minyool and maxyool then
+	update personnel set bonus=pay*yool where dno=no;
+	if sql%notfound then
+		raise dnoexec;
+	end if;
+else
+	raise yoolexec;
+end if;
+exception
+	when yoolexec then
+		dbms_output.put_line('보너스 비율 범위가 아닙니다');
+	when dnoexec then
+		dbms_output.put_line('부서 번호좀 확인좀해라좀제발');
+end;
+/
+
+execute p3(40,0.15)
+select * from personnel;
+
+
+--두수를 입력받아 곱을 반환
+create or replace procedure p4
+(n1 number,
+n2 number,
+n3 out number)
+is
+begin
+	n3 := n1*n2;
+	
+end;
+/
+
+-> 실행시에 변수 선언 먼저
+variable result number  
+execute p4(89, 6, :result)
+print result
+
+
+==퍼스널 테이블에 기본 키제약 추가
+--신입사원 등록(사번, 이름, 부서번호를 입력)
+--단 해당부서에 직원이 없으면 예외처리
+
+--원트
+create or replace procedure p5
+(no number,
+name varchar2,
+buno number)
+is
+begin
+	insert into personnel (pno, pname, dno)
+	values (no, name, buno);
+end;
+/
+
+--모답
+create or replace procedure p5
+(vpno personnel.pno%type,
+vpname personnel.pname%type,
+vdno personnel.dno%type)
+is
+invaliddno exception;
+cnt number;
+begin
+	select count(*) into cnt from division where dno=vdno;
+	if cnt<1 then 
+		raise invaliddno;
+	end if;
+	insert into personnel (pno, pname, dno)
+		values (vpno, vpname, vdno);
+exception
+	when invaliddno then
+		dbms_output.put_line('부서를 확인좀해라좀제발');
+	when others then
+		dbms_output.put_line('관리자에게물어봐');
+end;
+/
+
+execute p5(1001, '슈화', 30)
+select * from personnel;
+
+
+--test
+select ename, dname, sal, job from emp,dept
+	where emp.deptno=dept.deptno;
+
+create or replace procedure pp1
+(pay number)
+is
+psname emp.ename%type;
+pmname dept.dname%type;
+psal emp.sal%type;
+pjob emp.job%type;
+begin
+select sname, mname, sal, job into sname,mname,sal,job
+from emp, dept
+where emp.deptno=dept.deptno and sal>pay;
+end;
+/
+exec pp1(3000)
+
+==함수 : 리턴이 있다는 것 제외하고는 프로시저와 동일
+--반드시 리턴값이 있음, 복잡하거나 어려운 계산인 경우 생성하여 사용
+--형식
+create or replace function 함수명
+(파라미터변수)
+return datatype
+is
+변수선언
+begin
+end;
+/
+
+--gogek 테이블에서 주민번호 입력시 성별반환
+create or replace function sexy
+(jumin gogek.gojumin%type)
+return varchar2
+is
+result varchar2(10);
+begin
+	if substr(jumin,8,1)=1 or substr(jumin,8,1)=3 then
+		result:='남자';
+	else 
+		result:='여자';
+	end if;
+	return result;
+end;
+/
+
+select goname, gojumin, sexy(gojumin) from gogek;
+
+--personnel 테이블에서 해당부서 최대급여 같이 출력
+create or replace function fmaxpay
+(vdeptno sawon.deptno%type)
+return number
+is
+maxpay number;
+begin
+select max(sapay) into maxpay from sawon where deptno=vdeptno;
+return maxpay;
+end;
+/
+
+select saname, sapay, deptno, fmaxpay(deptno) from sawon;
+
+
+
+==트리거 : 제약조건으로 구현되지 못하는 부분을 구현시 사용, 국민연금이나 금여계산등
+	데이터베이스의 이벤트에 반응하여 실행되는 프로그램 단위
+--자동호출
+create trigger 트리거명
+	타이밍(before or after) 이벤트 on 테이블명
+begin 
+	...
+end;
+/
+
+create table division_history(
+	memo varchar2(30)
+	);
+	
+create or replace trigger t1
+	after insert on division
+begin
+	insert into division_history values (sysdate||'입력작업');
+end;
+/
+
+insert into division values (1, '전산실','123', '도쿄');
+insert into division values (2, '의무실','123', '홍콩');
+select * from division;
+select * from division_history;
+
+drop trigger t1;
+
+--division 백업 테이블 생성
+delete division;
+select * from division;
+
+create table division_bk
+as
+select * from division;
+
+select * from division_bk;
+
+==행단위 트리거(for each row)
+:old.컬럼명 - 트리거가 처리한 레코드의 원래값 저장, 지금 막 삭제된 행의 컬럼값
+:new.컬러명 - 트리거가 처리한 새값, 지금 막 삽입된 행의 컬럼값
+
+create or replace trigger t_division
+	after insert or update or delete on division
+	for each row
+begin
+	if inserting then
+		insert into division_bk 
+			values(:new.dno, :new.dname, :new.phone, :new.position);
+	elsif updating then
+		update division_bk set dname=:new.dname, 
+								phone=:new.phone,
+								position=:new.position 
+							where dno=:old.dno;
+	elsif deleting then
+		delete from division_bk where dno=:old.dno;
+	end if;	
+end;
+/
+
+insert into division values (1, '전산실','123', '도쿄');
+insert into division values (2, '의무실','123', '홍콩');
+
+select * from division;
+select * from division_bk;
+
+update division set dname='IT부서', phone='000', position='뉴욕'
+	where dno=1;
+
+
+
+<Oracle> 201007
+
+
+==트리거
+--loan 테이블에 데이터 입력되면 emp 테이블 바꾸기
+create table emp(
+	eno number(3),
+	name varchar2(15),
+	w_ck varchar2(1) default 'n'
+	);
+
+insert into emp values (1, 'kim', 'n');
+insert into emp values (2, 'jim', 'n');
+insert into emp values (3, 'bim', 'n');
+
+create table loan(
+	eno number(3),
+	won number
+	);
+	
+create trigger 트리거명
+	타이밍(before or after) 이벤트 on 테이블명
+begin 
+	...
+end;
+/
+
+	
+create or replace trigger t_emp_loan
+	after insert or delete on loan
+	for each row
+begin
+	if inserting then
+		update emp set w_ck='y' where eno=:new.eno;
+	elsif deleting then
+		update emp set w_ck='n' where eno=:old.eno;
+	end if;
+end;
+/
+
+insert into loan values(2,3000);
+insert into loan values(1,100);
+select * from loan;
+select * from emp;
+
+delete from loan where eno=2;
+select * from loan;
+select * from emp;
+
+
+==누가 무엇을 건드렸는지 히스토리(로그)테이블 만들기(입력:i / 수정:u / 삭제:d)
+create table emp2(
+	eno number(3) primary key,
+	ename varchar2(10),
+	hp varchar2(10)
+	);
+	
+create table emp2_his(
+	no number primary key, --자동증가하게 만들기
+	userid varchar2(30),
+	work varchar2(1),  --i,u,d
+	workdate varchar2(30),
+	eno number(3),
+	ename varchar2(10),
+	hp varchar2(10),
+	newename varchar2(10),
+	newhp varchar2(10)
+	);
+
+--시간 설정하기
+select sysdate from dual;
+alter session set nls_date_format='yy-mm-dd-hh24:mi:ss';
+select sysdate from dual; --시간 시분초 단위로 바꾸기
+
+--자동증가 시퀀스 만들기
+create sequence emp2_his_seq;
+
+--트리거 만들기
+create or replace trigger t_emp2
+	after insert or update or delete on emp2
+	for each row
+begin
+	if inserting then
+		insert into emp2_his (NO, USERID, WORK, WORKDATE,
+		ENO, ENAME, HP)
+			values(emp2_his_seq.nextval,user,'i',sysdate,
+			:new.eno,:new.ename,:new.hp);
+	elsif updating then
+		insert into emp2_his values(emp2_his_seq.nextval,
+		user,'u',sysdate,:old.eno,:old.ename,:old.hp,
+		:new.ename,:new.hp);
+	elsif deleting then
+		insert into emp2_his (NO, USERID, WORK, WORKDATE,
+		ENO, ENAME, HP)
+			values(emp2_his_seq.nextval,user,'d',sysdate,
+			:old.eno,:old.ename,:old.hp);
+	end if;
+end;
+/
+
+grant insert, update, delete, on emp2 to public;
+insert into emp2 values (1, 'park', '1234');
+select * from emp2;
+select * from emp2_his;
+
+conn hr/hr
+insert into happy.emp2 values (2, 'choi', '1111');
+update happy.emp2 set ename='ppp', hp='0000' where eno=1;
+
+conn happy/day
+select * from emp2;
+select * from emp2_his;
+
+conn scott/tiger
+delete from happy.emp2 where eno=2;
+
+==상세 개념적 모델링 ->eXERD
+
+	
+<Oracle> 201008
+
+==메모리에서 오라클 온오프
+(메모리에서 아예 없는데에서 no mount 단계, mount단계, open단계 총3단계)
+(다 올라가는거 startup / 다 내려가는거 shutdown)
+sqlplus "/as sysdba"
+
+shutdown immediate; --진행중인 작업을 완료하고 메모리에서 오라클 제거
+shutdown abort; --진행중인 작업을 멈추고 메모리에서 오라클 제거
+startup 
+
+conn happy/day
+conn /as sysdba
+
+--mount 단계로 이동(다 껏다가 다시 올라가야해)
+shutdown immediate;
+startup mount
+conn happy/day --error mount 단계라 접속 불가(db가 오픈되지 않음)
+conn /as sysdba
+
+alter database open;
+conn happy/day
+
+==아카이브 로그 모드
+conn /as sysdba
+
+--데이터베이스 모드 확인
+select log_mode from v$database;
+
+--데이터베이스 모드 변경 : mount 단계에서만 가능
+shutdown immediate;
+startup mount;
+archive log list; --archive모드 확인
+alter database archivelog; --archive 모드로 변경
+archive log list;
+
+--데이터베이스 오픈
+alter database open;
+show parameter log_archive_start;
+--false 는 아카이브 프로세스를 수동으로 활성화 해야함
+
+==아카이브 프로세스 자동으로 활성화 (false -> true 로 변경)
+--1. archive log file 이름 결정
+show parameter log_archive_format
+
+--2. archive log file 위치 지정
+d:\ml\arc1
+d:\ml\arc2
+d:\ml\arc3 폴더 생성후에
+
+alter system
+	set log_archive_dest_1='location=d:\ml\arc1' scope=spfile;
+alter system
+	set log_archive_dest_2='location=d:\ml\arc2' scope=spfile;
+alter system
+	set log_archive_dest_3='location=d:\ml\arc3' scope=spfile;
+
+--3. archive 프로세스 자동 활성화
+alter system
+	set log_archive_start=true scope=spfile;
+
+--4. 오라클 재가동
+shutdown immediate;
+startup
+archive log list
+
+
+==백업 및 복구
+create tablespace red
+	datafile 'd:\study\db\red.dbf' size 10m;
+create tablespace green
+	datafile 'd:\study\db\green.dbf' size 10m;
+create user uu3
+	identified by uu3
+	default tablespace red;
+create user uu2
+	identified by uu2
+	default tablespace green;	
+grant connect, resource to uu3, uu2;
+
+conn uu3/uu3
+create table t1(
+	a number,
+	b varchar2(20),
+	c date);
+begin
+	for i in 1..100000 loop
+		insert into t1 values (i,'머신러닝반',sysdate);
+	end loop;
+end;
+/
+select count(*) from t1;
+commit;
+
+--데이터베이스 백업
+D:\study\db\red.dbf 파일을 D:\study\backup\red.dbf 로 복사
+
+begin
+	for i in 1..70000 loop
+		insert into t1 values (i,'머신러닝반',sysdate);
+	end loop;
+end;
+/
+select count(*) from t1;
+commit;
+
+==시나리오 1) 데이터베이스 운영중 데이터파일의 손상이 있는 경우
+conn /as sysdba
+alter tablespace red offline;
+
+--데이터파일 손상(D:\study\db\red.dbf 의 확장자 변경)
+alter tablespace red offline; --error
+
+--데이터파일 복구
+recover tablespace red;
+alter tablespace red online;
+
+--확인
+conn uu3/uu3
+select count(*) from t1;
+
+==시나리오 2) 백업본이 없는 경우
+conn uu2/uu2
+create table t1(
+	a number,
+	b varchar2(20),
+	c date);
+begin
+	for i in 1..200000 loop
+		insert into t1 values (i,'흣짜',sysdate);
+	end loop;
+end;
+/
+commit;
+select count (*) from t1;
+delete from t1 where a>5000;
+commit;
+select count (*) from t1; --5000건 데이터 남음
+
+--데이터파일 손상
+conn /as sysdba
+alter tablespace green offline;
+
+--확장자 변경(D:\study\db\green.dbf)
+alter tablespace green online;
+
+--데이터파일 경로변경
+alter database 
+	create datafile 'D:\study\db\green.dbf'
+		as 'D:\study\db\newGreen.dbf';
+
+--데이터 복구
+recover tablespace green;
+select count (*) from t1;
+alter tablespace green online;
+conn uu2/uu2
+select count (*) from t1;
+
+==시나리오 3) stratup 시 데이터파일 손상이 있는 경우
+D:\study\db\newGreen.dbf 파일을 
+	D:\study\backup\newGreen.dbf로 복사
+	
+begin
+	for i in 1..200 loop
+		insert into t1 values (i,'흣짜',sysdate);
+	end loop;
+end;
+/
+
+select count(*) from t1;
+commit;
+	
+conn /as sysdba
+shutdown immediate;
+
+--데이터파일 손상 (D:\study\db\newGreen.dbf 파일 확장자 변경)
+startup --error mount 단계이지 open 단계 아니라 테이블스페이스 인식불가
+recover tablespace green; --error
+
+--데이터파일 복원
+D:\study\backup\newGreen.dbf을 
+	D:\study\db\newGreen.dbf로 복사
+
+--데이터파일 복구
+recover tablespace green; 
+or
+recover database;
+
+--데이터베이스 오픈
+alter database open;
+conn uu2/uu2
+select count(*) from t1;
+
+==로그파일관리
+
+<Oracle> 201012
+
+==eXERD 다대다 관계 모델링
+n:m일때 즉 도서와 저자 관계는 한 도서에 저자 여러명
+저자 한명이 도서 여러개 쓸수 있으니 다대다 관계 -> 허용 X
+이럴때는 다대다를 n:1:m 관계로 맺어야해
+즉, 도서저자 테이블을 생성해서 도서번호와 저자번호 둘다 프라이머리키로 갖는
+테이블 생성할 것
+
+==매핑(같은 말이다)
+개념점모델링 - 논리적db설계
+entity - table
+attribute - column
+UID - primary key
+relationship - foreign key
+
+==정규화
+--제1정규화
+엔티티내의 모든 속성은 반드시 하나의 값을 가져야한다
+->새로운 엔티티 생성하고 UID를 부여한 다음 1:N 관계를 부여
+
+--제2정규화
+복합키를 식별자로 가지는 경우 복합키의 일부분에만 종속적인 항목을
+분류하는 작업
+
+--제3정규화
+엔티티 내의 식별자(기본키)를 제외한 모든 속성은 종속될 수 없다
+
+고객-주문-주문제품-제품 순으로 보통 모델링
+
+
+create or replace trigger tri1
+	after insert or update or delete on student
+	for each row
+declare
+	cursor c5 is select sno, kor, eng, mat from student ;
+	cavg student.kor%type;
+	ctot student.kor%type;
+	cgrd student_result.result%type;
+begin
+	delete from student_result;
+	if inserting then
+		for i in c4 loop
+			ctot := i.kor+i.eng+i.mat;
+			cavg := ctot/3;
+			if cavg>=60 then 
+				cgrd := 'pass';
+			else 
+				cgrd := 'fail';
+			end if;
+			insert into student_result
+				values (i.sno, cgrd);	
+		end loop;
+	elsif updating then
+		insert into student_result values(emp2_his_seq.nextval,
+		user,'u',sysdate,:old.eno,:old.ename,:old.hp,
+		:new.ename,:new.hp);
+	elsif deleting then
+		insert into emp2_his (NO, USERID, WORK, WORKDATE,
+		ENO, ENAME, HP)
+			values(emp2_his_seq.nextval,user,'d',sysdate,
+			:old.eno,:old.ename,:old.hp);
+	end if;
+end;
+/
+
+
+
+create or replace trigger t1	
+	after insert or update or delete on student
+	for each row
+begin
+	if inserting then
+		if(:new.kor+:new.eng+:new.mat)/3>60 then
+			insert into student_result values (:new.sno, 'pass');
+		else
+			insert into student_result values (:new.sno, 'fail');
+		end if;
+	elsif updating then
+		if(:new.kor+:new.eng+:new.mat)/3>60 then
+			update student_result set result='pass' where sno=:new.sno;
+		else
+			update student_result set result='fail' where sno=:new.sno;
+		end if;
+	elsif deleting then
+		delete from student_result where sno=:old.sno;
+
+	end if;
+end;
+/
+
+
+<Oracle> 201015
+
+==파이썬 다운
+Windows x86-64 executable installer
+C:\python\에 설치경로 지정(귀찮으니까) 나중에 버전별로 정리
+
+
+==파이참 다운
+commmnity ver
+프로젝트창 : alt + 1 
+주석 : ctrl + /
+
+==웹페이지 사용기술 : html + css + javascript(jquery)
+html : 웹페이지 구성
+css : 스타일 적용
+javascript : 사용자 반응 처리
+
+==HTML 구조(*.html, *.htm --대소문자 구분 X)
+tag(< >) : 요소를 만들 떄 사용하는 기호
+시작, 끝 있는 tag : <h1>..내용..</h1>
+단독으로 사용하는 tag : 
+	html5 : <br>
+	xhtml : <br/> --개발자들이 선호
+	
+<!DOCTYPE html> <!--html5 임을 브라우져에게 알려줌-->
+<html> <!--html의 루트요소, lang 속성 입력가능-->
+    <head> <!--body에 필요한 css3 또는 js 제공-->
+        <meta lang ='kor'>
+        <title>html</title>
+    </head>
+    <body> <!--사용자에게 실제 보여지는 부분-->
+        <h1>first homepage </h1>
+        <h2> </h2>
+    </body>
+</html>
+
+--기본 tag
+br : 줄바꿈 <br> or <br/>
+p : 패러그래프
+<hn>~<hn> :제목태그(줄바꿈포함) n=1~6
+https://www.w3schools.com/tags/default.asp
+
+--글자모양태그
+<hr>
+<hr width="70" >
+<hr width="70%" >
+
+--html의 색
+<!--<body bgcolor="yellow">-->
+<!--<body bgcolor="#c6f2cd">  --rgb 16진수값-->
+<body bgcolor="rgb(255,0,100)">  <!--rgb 값-->
+<font size= color=>
+
+--특수문자
+공백 &nbsp;
+<   &lt;
+>   &gt;
+&   &amp;
+
+--목록태그
+ol :ordered list
+ul :unordered list
+--목록요소
+li : ol 또는 ul 의 자식요소로 사용
+
+--이미지태그
+src : 그림경로
+alt : 그림 없을 때 나오는 글자
+width : 그림너비 지정
+height : 그림높이 지정
+
+<Oracle> 201016
+
+==물리데이터베이스 설계
+1)
+create tablespace autumn
+	datafile 'd:\study\db\autumn.dbf' size 10m;
+	
+2)
+create user machine
+	identified by learning
+	default tablespace autumn;
+	
+3)
+grant connect, resource to machine;
+
+4)
+conn machine/learning
+create table member(
+	mno number constraint member_mno_p primary key,
+	name varchar2(30) ,
+	idno varchar2(13),
+	addr varchar2(100),
+	tel varchar2(20),
+	email varchar2(50)
+	);
+	
+create table sawon(
+	sno number constraint sawon_sno_p primary key,
+	name varchar2(30) ,
+	idno varchar2(13),
+	addr varchar2(100),
+	tel varchar2(20),
+	startdate date,
+	dname varchar2(30),
+	loginid varchar2(30),
+	pass varchar2(30),
+	pay number
+	);
+	
+create table reserve(
+	rno number constraint reserve_rno_p primary key,
+	mno number constraint reserve_mno_f references member(mno),
+	biname varchar2(30),
+	biidno varchar2(13),
+	checkin date,
+	tel varchar2(20),
+	sno number constraint reserve_sno_f references sawon(sno)
+	);
+	
+create table reserveroom(
+	rno number,
+	no number,
+	roomtype varchar2(1) constraint reserveroom_roomtype_c 
+		check (roomtype in ('q','d','s')),
+	checkout date,
+	inwon number,
+	constraint reserveroom_rno_no_p primary key(rno,no),
+	constraint reserveroom_rno_f foreign key(rno) references reserve(rno)
+	);
+	
+create table payment(
+	pno number constraint payment_pno_p primary key,
+	method varchar2(10) constraint payment_method_c check (method in ('cash','card')),
+	vailddate date,
+	ano varchar2(20),
+	rno number, 
+	no number,
+	constraint payment_rno_no_f foreign key (rno,no) 
+		references reserveroom(rno,no)
+	);
+	
+5)
+select object_name, object_type from user objects;
+
+==DB 구현
+1)
+conn system/1q2w3e4r!
+select FILE_NAME, TABLESPACE_NAME from dba_data_files;
+
+2)
+create user summer identified by winter;
+
+3)
+create profile basic limit
+FAILED _LOGIN_ATTEMPTS 3
+SESSION_PER_USER 5
+IDLE_TIME 10;
+
+4)
+select USERNAME, DEFAULT_TABLESPACE, profile from dba_users;
+
+5)
+conn system/1q2w3e4r!
+grant connect, resource to summer;
+
+6) 
+conn summer/winter
+create table board(
+	no number constraint board_no_p primary key,
+	title varchar2(300) constraint board_title_n not null,
+	content varchar2(2000) constraint board_content_n not null,
+	writer varchar2(30) constraint board_writer_n not null,
+	writedate default sysdate,
+	hit number default 0
+	);
+create sequence board_seq;
+
+7)
+alter table board
+	add constraint board_title_u unique(title);
+	
+8)
+create index i_board_writedate
+	on board(writedate);
+
+9)
+grant select on board to public;
+
+10)
+
+==sql 응용
+1)
+set serveroutput on
+conn scott/tiger
+create or replace procedure p1
+(pay number)
+is
+vename emp.ename%type;
+vdname dept.dname%type;
+vsal emp.sal%type;
+vjob emp.job%type;
+begin
+select ename, dname, sal, job into vename, vdname, vsal, vjob
+	from emp, dept where emp.deptno=dept.deptno and sal>pay;
+dbms_output.put_line(vename||' '||vdname||' '||vsal||' '||vjob);
+end;
+/
+exec p1(3000)
+exec p1(2000)
+
+--cursor 이용방법
+conn scott/tiger
+set serveroutput on
+
+create or replace procedure p1
+(pay number)
+is
+cursor c1 is select ename, dname, sal, job
+	from emp, dept where emp.deptno=dept.deptno and sal>pay;
+begin
+for row in c1 loop
+	dbms_output.put_line(row.ename||' '||row.dname||' '||row.sal||' '||row.job);
+end loop;
+end;
+/
+exec p1(3000)
+exec p1(2000)
+
+2)
+create table student(
+	sno..);
+create table student_result(
+	...);
+create or replace trigger t3
+	after insert or update or delete on student
+	for each row
+begin
+if inserting then
+	if (:new.kor+:new.eng+:new.mat)/3 >=60 then
+		insert into student_result values(:new.sno, 'pass');
+	else
+		insert into student_result values(:new.sno, 'fail');
+	end if;
+elsif updating then
+	if (:new.kor+:new.eng+:new.mat)/3 >=60 then
+		update student_result set result='pass' where sno=:old.sno;
+	else
+		update student_result set result='fail' where sno=:old.sno;
+	end if;
+elsif deleting then
+	delete from student_result where sno=:old.sno;
+end if;
+end;
+/
+
+3)
+select deptno, avg(sal), sum(sal), max(sal), min(sal) from emp
+	group by deptno
+	order by avg(sal) desc;
+	
+4)
+select deptno, job, count(*) from emp group by deptno,job;
+
+5)
+select e1.ename, e1.hiredate, e2.ename, e2.hiredate 
+	from emp e1, emp e2
+	where e1.mgr=e2.empno;
+		
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+	
+
+	
+	
+
+	
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+

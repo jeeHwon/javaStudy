@@ -2,57 +2,152 @@ package jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLDataException;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Calendar;
+import java.util.Date;
 
-//JEBC :DB연동여부 테스트
-public class JdbcTest {
-	//field
-	
-	//constructor
-	JdbcTest(){
+//import org.omg.CORBA.Object;
+
+//import ch7.Calculator01;
+
+public class JdbcTest_ref {
+
+	private Connection con;
+	private PreparedStatement ps = null;
+	private ResultSet rs;
+	private String driver = "oracle.jdbc.driver.OracleDriver";
+	private String ip = "192.168.0.149";
+	private String port = "1521";
+	private String sid = "xe";	
+	private String url = "jdbc:oracle:thin:@" + ip + ":" + port + ":" + sid;
+	private String user = "scott";
+	private String pass = "tiger";
+	private String sql = "";
+	private char type = 's';
+
+	public JdbcTest_ref(String sql, char type) {
+		this.sql = sql;
+		this.type = type;
+		this.db();
 	}
-	
-	//method
-	public static void main(String[] args) {
-		String url = "jdbc:oracle:thin:@localhost:1521:xe";
-		String user = "scott";
-		String password = "tiger";
-		
-		Connection conn = null;
-		Statement stmt = null;
-		//1. JDBC 드라이버 로드
-		//JDBC 드라이버를 로드하기 위해 드라이버 클래스 파일을 로드한다
-		//자바의 Class 클래스의 forName() 메소드를 이용하면
-		//특정 클래스 파일을 읽어들일 수 있다
-		//mySql 이면 Class.forName("com.mysql.jdbc.Driver");
-		//Oracle
+
+	private void db() throws NullPointerException {
 		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			System.out.println("드라이버 로드 성공");
+			Class.forName(this.driver);
+			System.out.println("driver 연결 성공");
+
+			this.con = DriverManager.getConnection(this.url, this.user, this.pass);
+			System.out.println("DB 연결 성공");
+
+			switch(this.type) {
+				case 's' :
+					this.select();
+					break;
+				case 'u' :
+					this.update();
+					break;
+				case 'i' :
+					this.insert();
+					break;
+				case 'd' :
+					this.delete();
+					break;
+			}
+
+			if (rs != null)
+				rs.close();
+			if (ps != null)
+				ps.close();
+			if (con != null)
+				con.close();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		}
-		
-		//2.자바 응용프로그램과 JDBC의 연결
-		//DriverManager는 자바응용프로그램을 JDBC 드라이버에 연결
-		//시켜주는 클래스이다
-		//DriverManager.getConnection() 메소드를 호출하여
-		//데이터베이스에 연결하고 Connection 객체를 반환한다
-		//DriverManager.getConnection(url, user, password)
-		try {
-			conn = DriverManager.getConnection(url,user,password);
-			System.out.println("connection 얻기 성공");
+		} catch (SQLDataException e) {
+			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-	
-		//3. 실행할 객체를 생성
-		//자바에서 SQL 문을 실행하기 위해서는 Statment 클래스
-		try {
-			stmt = conn.createStatement();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	private void select() throws SQLException {
+		ps = con.prepareStatement(sql);
+		rs = ps.executeQuery();
+
+		while(rs.next()) {
+			System.out.printf("%d, %s, %s, %d, %s, %d, %d, %d\n", rs.getInt("empno"), rs.getString("ename"), rs.getString("job"), rs.getInt("mgr"), rs.getDate("hiredate"), rs.getInt("sal"), rs.getInt("comm"), rs.getInt("deptno"));
+		}
+	}
+
+	private void update() throws SQLException {
+		ps = con.prepareStatement(sql);
+		int cnt = ps.executeUpdate();
+
+		System.out.printf("%d 건 update\n", cnt);
+	}
+
+	private void insert() throws SQLException {
+		ps = con.prepareStatement(sql);
+		ps.setInt(1, 8080);
+		ps.setString(2, "둘리");
+		ps.setString(3, "백수");
+		ps.setInt(4, 8000);
+		ps.setInt(5, 30);
+		int cnt = ps.executeUpdate();
+
+		System.out.printf("%d 건 insert\n", cnt);
+	}
+
+	private void delete() throws SQLException {
+		ps = con.prepareStatement(sql);
+		ps.setInt(1, 8080);
+		ps.setInt(2, 9999);
+
+		int cnt = ps.executeUpdate();
+
+		System.out.printf("%d 건 delete\n", cnt);
+	}
+
+	public static void main(String[] args) {
+		try {
+			String sql = "select empno, ename, job, mgr, hiredate, nvl(sal, 9) sal, nvl(comm, 0) comm, deptno from emp";
+			char type = 's';
+			System.out.println("-------------------------------------------------");
+			JdbcTest_ref db = new JdbcTest_ref(sql, type);
+
+			sql = "update emp set comm = 90000";
+			type = 'u';
+			System.out.println("-------------------------------------------------");
+			db = new JdbcTest_ref(sql, type);
+
+			sql = "select empno, ename, job, mgr, hiredate, nvl(sal, 9) sal, nvl(comm, 0) comm, deptno from emp";
+			type = 's';
+			System.out.println("-------------------------------------------------");
+			db = new JdbcTest_ref(sql, type);
+
+			sql = "insert into emp(empno, ename, job, sal, deptno) values (?, ?, ?, ?, ?)";
+			type = 'i';
+			System.out.println("-------------------------------------------------");
+			db = new JdbcTest_ref(sql, type);
+
+			sql = "select empno, ename, job, mgr, hiredate, nvl(sal, 9) sal, nvl(comm, 0) comm, deptno from emp where empno = 8080";
+			type = 's';
+			System.out.println("-------------------------------------------------");
+			db = new JdbcTest_ref(sql, type);
+
+			sql = "delete from emp where empno in (?, ?)";
+			type = 'd';
+			System.out.println("-------------------------------------------------");
+			db = new JdbcTest_ref(sql, type);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }
