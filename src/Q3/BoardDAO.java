@@ -39,6 +39,7 @@ public class BoardDAO {
 		}
 		System.out.println("------------------");
 	}
+	
 	//update method
 	//title과 content를 받아 같은 title을 가진 객체를 찾아 새로운 content로 수정 
 	public void update(String title, String content) {
@@ -68,25 +69,4 @@ public class BoardDAO {
 	}
 	//위 DAO 코드는 중복되는 제목을 가진 글에 대해서 구현 못하는 한계
 	//따라서 객체(게시글)마다 고유값(ID Primary key)을 부여함이 바람직 할것.
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }
