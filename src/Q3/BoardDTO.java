@@ -25,9 +25,11 @@ public class BoardDTO {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	//toString override
+	
+	//클래스값의 로그 등을 확인할 때 필요하다고 한다.
+	//아직 잘 와닿지는 않는다!
 	@Override
 	public String toString() {
-		return "BoardDTO [title= "+title+", content ="+content+"]";
+		return "BoardDTO [title=" + title + ", content=" + content + "]";
 	}
 }
