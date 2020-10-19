@@ -8,12 +8,10 @@ public class BoardDAO {
 	//dtos는 BoardDTO 객체만 받게 강제
 	private ArrayList<BoardDTO> dtos = new ArrayList<BoardDTO>();
 	
-	//default constuctor
-	public BoardDAO() {}
+	public BoardDAO() {}//default constructor
 
-	//method
 	//DTO 객체가 담긴 dtos를 ArrayList 형태로 리턴해주는 method
-	public ArrayList<BoardDTO> getBoardList(){
+	public ArrayList<BoardDTO> getBoardList(){ 
 		return dtos;
 	}
 	
