@@ -25,6 +25,9 @@ public class Ex08 {
 		int score2 = 48;
 		String result = (score2>90)? "A학점":(score2>80)?"B학점":"그외";
 		System.out.println(result);
+		int a = 10;
+		int n = (a>10)? 100:0;
+		System.out.println(n);
 			
 	}
 	

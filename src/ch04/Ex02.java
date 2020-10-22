@@ -26,6 +26,7 @@ public class Ex02 {
 		//0~5 일땐 
 		//Math.random()*(큰수-작은수+1)+작은수
 		//(int)(Math.random()*(큰수-작은수+1)+작은수)
+	
 		
 		//100일땐 (int)(Math.random()*(큰수-작은수+1)+작은수)
 		//(int)(Math.random()*(100-0+1)+0)
