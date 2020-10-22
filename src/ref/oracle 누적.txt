@@ -16,6 +16,8 @@ create tablespace 테이블스페이스명
  	datafile ‘파일명’ size 크기;
 create tablespace summer
 	datafile ‘D:\study\db\summer.dbf’ size 10m;
+create tablespace winter
+	datafile 'C:\Users\HOME\Desktop\sqlWK\winter.dbf' size 50m;
 
 #2 사용자 생성
 create user 사용자명
@@ -24,6 +26,10 @@ create user 사용자명
 create user happy
 	identified by day
 	default tablespace summer;
+	
+create user c##uu1
+	identified by uu1
+	default tablespace winter;
 
 #3 권한부여
 grant 권한1, [권한2 …] to 사용자명;
@@ -48,8 +54,9 @@ create user scott
 
 --sql 파일 실행
 @경로/파일명
-@C:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin/scott.sql
-
+@C:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin\scott.sql
+@C:\app\HOME\virtual\product\12.2.0\dbhome_1\rdbms\admin\scott.sql
+@C:\app\HOME\virtual\product\12.2.0\dbhome_1\rdbms\admin\demo\demobld.sql
 --현재 사용자의 테이블 확인
 select * from tab;
 select * from emp;
