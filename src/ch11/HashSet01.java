@@ -3,6 +3,19 @@ package ch11;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+//HashSet 클래스
+//순서유지x, 중복허용x
+//HashSet은 객체를 저장하기 전에
+//먼저 객체의 hashCode()를 호출해서 해시코드를 얻어낸다.
+//객체 해시코드란? : 객체를 식별할 하나의 정수값
+//Object의 hashCode()함수는 객체의 메모리번지를 이용해서
+//해시코드를 만들기 때문에 객체마다 다른 값을 가진다
+//이미 저장되어 있는 객체들의 해시코드와 비교한다
+//만약 동일한 해시코드가 있다면 equals() 메소드로 두 객체를 비교해서
+//true가 나오면 동일한 객체로 판단하고	 중복저장을 하지 않는다.
+//hashCode() 리턴값 : true -> equals()리턴값 : true => 중복이니저장X
+//hashCode() 리턴값 : true -> equals()리턴값 : false -> 중복아니니 저장O
+//hashCode() 리턴값 : false -> 다른객체 => 중복아니니 저장O
 
 public class HashSet01 {
 	public static void main(String[] args) {
@@ -26,7 +39,7 @@ public class HashSet01 {
 		//모든 데이터 꺼내기 : 추가한 데이터순서가 유지되지 않은상태로 출력
 		//Iterator iter = set.iterator();
 		//while (iter.hasNext()) {//다음 요소(객체)가 존재하는 동안 =>객체수만큼 반복
-		//	Object temp = iter.next();//Object next():다음 요소(객체)를 가
+		//	Object temp = iter.next();//Object next():다음 요소(객체)를 가져옴
 		//	System.out.println(temp);
 		//}
 		
