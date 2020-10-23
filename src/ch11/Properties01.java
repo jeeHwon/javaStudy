@@ -13,7 +13,7 @@ import java.util.Properties;
 //
 
 //외부의 프로퍼티 파일을 읽어오기
-//Properties 객체를 생성하고 load() 메소드를 호출
+//Properties 객체를 생성하고 load() 메소드를 호출+++
 public class Properties01 {
 
 	public static void main(String[] args) throws FileNotFoundException, IOException {

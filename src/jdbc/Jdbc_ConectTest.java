@@ -7,7 +7,7 @@ public class Jdbc_ConectTest {
 
 	public static void main(String[] args) {
 		String driver = "oracle.jdbc.driver.OracleDriver";
-		String url = "jdbc:oracle:thin:@localhost:1521:ORCL"; //SID에서 xe대신 ORCL로 연결
+		String url = "jdbc:oracle:thin:@localhost:1521:xe"; //SID에서 xe대신 ORCL로 연결
 		String user = "scott";
 		String password = "tiger";
 		try {

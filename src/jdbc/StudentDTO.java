@@ -1,6 +1,6 @@
 package jdbc;
 
-public class StudentDTO01 {
+public class StudentDTO {
 	//field
 	private String name;		//학생이름
 	private String department;  //학과
@@ -8,7 +8,7 @@ public class StudentDTO01 {
 	private double grade;		//학점평균
 	
 	//constructor
-	public StudentDTO01(String name, String dept, String id, double gr) {
+	public StudentDTO(String name, String dept, String id, double gr) {
 		this.name = name;
 		this.department = dept;
 		this.id = id;
