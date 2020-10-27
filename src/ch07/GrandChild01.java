@@ -1,4 +1,4 @@
-package ch11;
+package ch07;
 
 //Child01을 상속받는 클래스
 public class GrandChild01 extends Child01{

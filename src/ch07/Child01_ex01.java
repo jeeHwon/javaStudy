@@ -1,4 +1,4 @@
-package ch11;
+package ch07;
 
 public class Child01_ex01 {
 

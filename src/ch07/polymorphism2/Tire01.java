@@ -1,4 +1,4 @@
-package ch11;
+package ch07.polymorphism2;
 
 //이 크래스의 direct subclass로 한국, 금호타이어가 있다
 public class Tire01 {

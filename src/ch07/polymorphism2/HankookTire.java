@@ -1,4 +1,4 @@
-package ch11;
+package ch07.polymorphism2;
 
 //이 클래스는 Tire01을 상속받는 클래스이다
 public class HankookTire extends Tire01{

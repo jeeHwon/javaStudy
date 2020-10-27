@@ -1,4 +1,4 @@
-package ch11;
+package ch07.polymorphism2;
 
 public class KumhoTire extends Tire01{
 	//field

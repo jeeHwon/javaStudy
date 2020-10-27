@@ -1,4 +1,4 @@
-package ch11;
+package ch07;
 
 public class Child01 extends Parent01 {
 	//m1() 상속받은 상태

@@ -1,4 +1,4 @@
-package ch11;
+package ch07.polymorphism;
 
 //필드의 다형성을 살펴보자
 
@@ -19,7 +19,7 @@ public class Car01_ex01 {
 					break;
 				case 2 : 
 					System.out.println("전방우측 KumhoTire로 교체"); 
-					car.frTire = new HankookTire("전방우측",16);
+					car.frTire = new KumhoTire("전방우측",16);
 					break;
 				case 3 : 
 					System.out.println("후방좌측 HankookTire로 교체"); 
@@ -27,7 +27,7 @@ public class Car01_ex01 {
 					break;
 				case 4 : 
 					System.out.println("후방우측 KumhoTire로 교체"); 
-					car.brTire = new HankookTire("후방우측",14);
+					car.brTire = new KumhoTire("후방우측",14);
 					break;
 				
 			

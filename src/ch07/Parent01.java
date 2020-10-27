@@ -1,4 +1,4 @@
-package ch11;
+package ch07;
 
 //부모
 public class Parent01 {
