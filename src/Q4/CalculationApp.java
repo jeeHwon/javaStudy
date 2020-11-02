@@ -29,6 +29,8 @@ public class CalculationApp {
 	
 	//constructor
 	public CalculationApp() {}
+	public CalculationApp(double result) {this.result = result;}
+	
 
 	//method
 	//문자열로 입력받아 숫자와 연산부호 구분하여 리스트화 하는 method
