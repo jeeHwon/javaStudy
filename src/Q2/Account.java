@@ -1,4 +1,4 @@
-package Q2test;
+package Q2;
 
 public class Account {
 	//field
