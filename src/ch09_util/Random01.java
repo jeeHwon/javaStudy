@@ -9,7 +9,7 @@ public class Random01 {
 		//번호선택
 		//1~45범위의 숫자 6개
 		int[] selectNumber = new int[6];
-		Random random = new Random();
+		Random random = new Random(System.currentTimeMillis());
 		System.out.print("번호선택 : ");
 		for (int i = 0; i < 6; i++) {
 			selectNumber[i] = random.nextInt(45)+1;
@@ -26,6 +26,7 @@ public class Random01 {
 //		System.out.println("new Random()="+random.nextInt());
 //		System.out.println("new Random()="+random.nextBoolean());
 //		System.out.println("new Random()="+random.nextDouble());
+		
 		
 		System.out.println("--------------------------");
 		System.out.print("당첨번호 : ");
@@ -49,11 +50,6 @@ public class Random01 {
 			System.out.println("1등");
 		} else {
 			System.out.println("꽝!");
-			
 		}
-		
-		
-		
 	}
-
 }
