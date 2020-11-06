@@ -17,7 +17,12 @@ public class SystemEx01 {
 		System.out.print("이름: ");	//실제로 읽은 바이트 수 저장
 		int nameBytes =is.read(datas);
 		String name = new String(datas, 0, nameBytes-2);
-		//-2를 한 이유는 캐리지턴(15),라인피드(10)을 문자열에서 제외
+		//-2를 한 이유는 캐리지턴(13),라인피드(10)을 문자열에서 제외
+		System.out.println("nameBytes"+nameBytes);
+		for (int i = 0; i < nameBytes; i++) {
+			
+			System.out.println(datas[i]);
+		}
 		
 		System.out.println("입력한 이름은: "+name);
 		
