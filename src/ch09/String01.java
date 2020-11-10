@@ -1,4 +1,4 @@
-package ch09_util;
+package ch09;
 
 public class String01 {
 

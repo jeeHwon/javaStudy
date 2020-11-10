@@ -1,4 +1,4 @@
-package ch09_util;
+package ch09;
 
 import java.util.Arrays;
 import java.util.Random;
