@@ -1,4 +1,4 @@
-package junitTest;
+package test_junit;
 
 
 //피보나치 수열 : 어떤 수열의 항이 앞의 두항의 합과 같은 수열

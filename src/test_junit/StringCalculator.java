@@ -1,4 +1,4 @@
-package junitTest;
+package test_junit;
 
 import java.util.Scanner;
 

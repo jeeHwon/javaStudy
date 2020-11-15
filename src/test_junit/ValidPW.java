@@ -1,4 +1,4 @@
-package junitTest;
+package test_junit;
 
 //소스코드
 //비밀번호는 8자리 이상
