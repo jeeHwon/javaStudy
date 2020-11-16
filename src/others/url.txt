@@ -1,0 +1,2 @@
+https://refactoring.guru/refactoring
+https://nesoy.github.io/articles/2018-05/Refactoring-BadSmell

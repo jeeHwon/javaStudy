@@ -14,7 +14,7 @@ public class Ex02_Ref {
 			prr.order(0);
 			prr.order(1);
 			prr.order(2);
-			prr.order(3);
+			//prr.order(3);
 		} catch (CommandException e) {
 			if (e.getErrCode()==200) {
 				System.out.println("명령어의 범위를 벗어났습니다!");
