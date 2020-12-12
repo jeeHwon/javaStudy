@@ -10,20 +10,19 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-//압축파일(jar)명 : 
-//hadoop.second.DepDelay /data/flight/2007.csv /result2007
-//hadoop jar C:\hdPJ\dd.jar hadoop.second.DepDelay /data/flight/2007.csv /result2007
-public class DepDelay {
+//hadoop jar c:\hdPJ\ad.jar hadoop.second.ArrDelay /data/flight/ /result/arr
+public class ArrDelay {
+
 	public static void main(String[] args) throws Exception{
 		if(args.length != 2) {
-			System.out.println("check! DepDelay inputPath outputPath");
+			System.out.println("check! ArrDelay inputPath outputPath");
 			System.exit(2);
 		}
 		Configuration conf = new Configuration();
-		Job job = new Job(conf, "DepDelay");
+		Job job = new Job(conf, "ArrDelay");
 		
-		job.setJarByClass(DepDelay.class);
-		job.setMapperClass(DepDelayMapper.class);
+		job.setJarByClass(ArrDelay.class);
+		job.setMapperClass(ArrDelayMapper.class);
 		job.setReducerClass(DelayReducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
