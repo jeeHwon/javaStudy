@@ -9,12 +9,14 @@ public class Airline {
 	private int departureDelay;
 	private int arrivalDelay;
 	private String dayOfWeek;
+	private int isCancelled;
 	
 	public Airline(Text line) {
 		try {
 			String[] cols = line.toString().split(",");
 			year = Integer.parseInt(cols[0]);
 			month = Integer.parseInt(cols[1]);
+			isCancelled = Integer.parseInt(cols[21]);
 			//4	DayOfWeek	1 (Monday) - 7 (Sunday)
 //			dayOfWeek = cols[3];
 			if (cols[3].contentEquals("1")) {
@@ -48,6 +50,10 @@ public class Airline {
 		}
 	}
 
+	public int getIsCancelled() {
+		return isCancelled;
+	}
+
 	public String getDayOfWeek() {
 		return dayOfWeek;
 	}
@@ -71,4 +77,6 @@ public class Airline {
 	public int getDepartureDelay() {
 		return departureDelay;
 	}
+
+
 }
